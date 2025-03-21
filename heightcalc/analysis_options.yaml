@@ -1,6 +1,7 @@
 analyzer:
   errors:
     unused_import: ignore
+    prefer_is_empty: ignore
 include: package:flutter_lints/flutter.yaml
 
 linter:
