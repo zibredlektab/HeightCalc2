@@ -99,16 +99,14 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateAKS(List<AKS> list, AKS oldItem, AKS newItem) {
-    AKS toReplace = list.firstWhere((i) => i.label.toLowerCase().contains(oldItem.label.toLowerCase()));
-    list.remove(toReplace);
-    list.add(newItem);
+  void updateAKSName(List<AKS> list, String oldName, String newName) {
+    AKS toReplace = list.firstWhere((i) => i.label.toLowerCase().contains(oldName.toLowerCase()));
+    toReplace.setLabel(newName);
     notifyListeners();
   }
-
-  void updateHeadName(String oldName, String newName) {
-    TripodHead toReplace = heads.firstWhere((i) => i.label.toLowerCase().contains(oldName.toLowerCase()));
-    toReplace.label = newName;
+  void updateAKSHeight(List<AKS> list, String name, int newHeight) {
+    AKS toReplace = list.firstWhere((i) => i.label.toLowerCase().contains(name.toLowerCase()));
+    toReplace.setHeight(newHeight);
     notifyListeners();
   }
 }
@@ -116,6 +114,18 @@ class MyAppState extends ChangeNotifier {
 class AKS {
   String label = "";
   int height = 0;
+
+  String getLabel() {
+    return label;
+  }
+
+  void setLabel(String newLabel) {
+    label = newLabel;
+  }
+
+  void setHeight(int newHeight) {
+    height = newHeight;
+  }
 }
 
 class TripodHead extends AKS {
@@ -126,9 +136,6 @@ class TripodHead extends AKS {
     super.height = height;
   }
 
-  String getLabel() {
-    return label;
-  }
 }
 
 class HeadAccessory extends AKS{
@@ -142,6 +149,7 @@ class HeadAccessory extends AKS{
     super.label = label;
     super.height = height;
   }
+
 }
 
 class CoreSupport extends AKS {
@@ -248,22 +256,30 @@ class _HomePageState extends State<HomePage> {
                       if (appState.heads.isEmpty) ...[
                         Text("No heads defined!")
                       ] else ...[
-                        DropdownButton<TripodHead>(
-                          value: provider._selectedHead,
-                          hint: Text('Select a head'),
-                          onChanged: (TripodHead? newHead) {
-                            newHead ??= provider.heads.first;
-                            appState._setHead(newHead);
-                          },
-                          
-                          items: [
-                            for (var head in provider.heads) ...[
-                              DropdownMenuItem<TripodHead>(
-                                value: head,
-                                child: Text(head.label),
-                              ),
-                            ]
-                          ],
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.blueGrey),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: DropdownButton<TripodHead>(
+                            value: provider._selectedHead,
+                            //underline: null,
+                            hint: Text('Select a head'),
+                            onChanged: (TripodHead? newHead) {
+                              newHead ??= provider.heads.first;
+                              appState._setHead(newHead);
+                            },
+                            borderRadius: BorderRadius.circular(5),
+                            items: [
+                              for (var head in provider.heads) ...[
+                                DropdownMenuItem<TripodHead>(
+                                  value: head,
+                                  child: Text(head.label),
+                                ),
+                              ]
+                            ],
+                          ),
                         ),
                       ]
                     ]
@@ -356,10 +372,7 @@ class _ConfigPageState extends State<ConfigPage> {
                                     autocorrect: false,
                                     onSubmitted: (String? inputValue) {
                                       inputValue ??= headItem.label;
-                                      provider.updateHeadName(headItem.label, inputValue);
-                                      for (var i in provider.heads) {
-                                        print ('${i.label} ,');
-                                      }
+                                      provider.updateAKSName(provider.heads, headItem.label, inputValue);
                                     },
                                   ),
                                 ),
