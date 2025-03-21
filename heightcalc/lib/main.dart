@@ -1,8 +1,11 @@
+// ignore_for_file: unnecessary_import
+
 import 'dart:ffi';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 
 
 void main() {
@@ -16,25 +19,55 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      navigatorKey: navKey,
-      home: const HomePage(),
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+    return ChangeNotifierProvider(
+      create: (context) => MyAppState(),
+      child: MaterialApp(
+        title: 'HeightCalc',
+        navigatorKey: navKey,
+        home: const HomePage(),
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
+        ),
+        darkTheme: ThemeData.dark(),
+        themeMode: ThemeMode.system,
+        routes: {
+          '/config': (context) => const ConfigPage(),
+        }
       ),
-      darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.system,
-      routes: {
-        '/config': (context) => const ConfigPage(),
-      }
     );
   }
 }
 
+class MyAppState extends ChangeNotifier {
+  var _goalHeight = 0;
+  var _selectedHead = heads.first;
+  var _selectedAKS = [];
+
+  void _calculate(int newHeight) {
+    print ('new height is $newHeight');
+    _goalHeight = newHeight;
+    notifyListeners();
+  }
+
+  void _setHead(TripodHead newHead) {
+    print ('new head is ${newHead.label}');
+    _selectedHead = newHead;
+    notifyListeners();
+  }
+
+  void _toggleAKS(HeadAccessory aksItem) {
+    if (_selectedAKS.contains(aksItem)) {
+      _selectedAKS.remove(aksItem);
+    } else {
+      _selectedAKS.add(aksItem);
+    }
+    notifyListeners();
+  }
+}
+
 class TripodHead {
-  final String label;
-  final int height; // Mitchell to camera base
+  String label;
+  int height; // Mitchell to camera base, with no other accessories
   
   TripodHead(this.label, this.height);
 
@@ -43,67 +76,48 @@ class TripodHead {
   }
 }
 
+class HeadAccessory {
+  // Head Accessories are any item that goes between the Mitchell mount and the camera, besides the head itself
+  // This includes Fisher Rotating Offsets, risers, sliders, and Tango heads, for example
+  String label;
+  int height; // height by which this accessory raises the camera when in use - not necessarily the same as total height of accessory
+  bool? canUseBoxes = false; // sliders can be placed directly on apple boxes, for example
+  int? heightOnBoxes = 0; // a slider on a box is a different height than on a tripod
+
+  HeadAccessory(this.label, this.height, {this.canUseBoxes, this.heightOnBoxes});
+}
+
+
+
 List<TripodHead> heads = [
   TripodHead('2575', 16),
   TripodHead('ArriHead', 22),
+];
+
+List<HeadAccessory> headAKS = [
+  HeadAccessory('Tango', 2),
+  HeadAccessory('R-O', 5),
+  HeadAccessory('Slider', 6, canUseBoxes: true, heightOnBoxes: 4),
 ];
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
   @override
   State<HomePage> createState() => _HomePageState();
+
+  
 }
 
 class _HomePageState extends State<HomePage> {
 
-  int _goalHeight = 0;
-  TripodHead? _selectedHead = heads.first;
   final TextEditingController _headMenuController = TextEditingController();
-
-  void _calculate(int newHeight) {
-    print ('new height is $newHeight');
-    setState(() {
-      _goalHeight = newHeight;
-    });
-  }
-
-  void _setHead(TripodHead newHead) {
-    print ('new head is ${newHead.label}');
-    setState(() {
-      _selectedHead = newHead;
-    });
-  }
-
-  void _showAKSSheet() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return Center(
-          child: Container(
-            padding: EdgeInsets.all(15),
-            child: ListView(
-              children:[
-                Center(
-                  child: Column(
-                    children:[
-                      Text("Required Accessories", style: Theme.of(context).textTheme.headlineMedium!),
-                      Gap(5),
-                      Text("Select the accessories you intend to use for this setup.", textAlign: TextAlign.center,),
-                      Text("foo"),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
 
+    var appState = context.watch<MyAppState>();
+    var selectedHead = appState._selectedHead;
+    var goalHeight = appState._goalHeight;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
@@ -135,7 +149,7 @@ class _HomePageState extends State<HomePage> {
                         } catch(e) {
                           print('invalid number provided');
                         }
-                        _calculate(newHeight);
+                        appState._calculate(newHeight);
                       },
                     ),
                   ),
@@ -158,7 +172,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                     onSelected: (TripodHead? newHead) {
                       newHead ??= heads.first;
-                      _setHead(newHead);
+                      appState._setHead(newHead);
                     },
                     dropdownMenuEntries:
                       heads.map<DropdownMenuEntry<TripodHead>>((TripodHead head) {
@@ -171,11 +185,33 @@ class _HomePageState extends State<HomePage> {
               ),
               Gap(10),
               ElevatedButton(
-                onPressed: () { _showAKSSheet(); },
+                onPressed: () {
+                  showModalBottomSheet<void>(
+                    context: context,
+                    builder: (_) => AKSBottomSheet(),
+                  );
+                },
                 child: Text("AKS"),
               ),
               Gap(10),
-              Text('$_goalHeight inches to lens, ${_selectedHead?.label} head in use'),
+              Text('$goalHeight inches to lens, ${selectedHead.label} head is in use'),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                    for (var aksItem in appState._selectedAKS) ...[
+                      if (aksItem != appState._selectedAKS.first && appState._selectedAKS.length > 2)
+                        Text(','),
+                      if (aksItem == appState._selectedAKS.last && appState._selectedAKS.length >= 2)
+                        Text(' and'),
+                      Text(' ${aksItem.label}'),
+                    ],
+                    if (appState._selectedAKS.length > 1)
+                      Text(' are in use'),
+                    if (appState._selectedAKS.length == 1)
+                      Text(' is in use'),
+                ],
+                
+              ),
             ],
           ),
         ),
@@ -200,6 +236,52 @@ class ConfigPage extends StatelessWidget {
       body: ListView(
         children: [Text('foo'),],
       )
+    );
+  }
+}
+
+class AKSBottomSheet extends StatefulWidget {
+  @override
+  AKSBottomSheetState createState() => AKSBottomSheetState();
+}
+
+class AKSBottomSheetState extends State<AKSBottomSheet> {
+  var selectedAKS = [];
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+    selectedAKS = appState._selectedAKS;
+    return Center(
+      child: Container(
+        padding: EdgeInsets.all(15),
+        child: ListView(
+          children:[
+            Center(
+              child: Column(
+                children:[
+                  Text("Required Accessories", style: Theme.of(context).textTheme.headlineMedium!),
+                  Gap(5),
+                  Text("Select the accessories you intend to use for this setup.", textAlign: TextAlign.center,),
+                  for (var headAKSItem in headAKS)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 110),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(headAKSItem.label),
+                          Switch(value: selectedAKS.contains(headAKSItem), onChanged: (bool value) {
+                            appState._toggleAKS(headAKSItem);
+                            print('AKS item ${headAKSItem.label} has been toggled ${appState._selectedAKS.contains(headAKSItem)}.');
+                          })
+                        ],
+                      ),
+                    )
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
