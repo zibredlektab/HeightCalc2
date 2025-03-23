@@ -10,7 +10,13 @@ class _ConfigPageState extends State<ConfigPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Config')),
+      appBar: AppBar(
+        title: const Text('Config'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () => Navigator.of(context).pop(),
+        ), 
+      ),
       body: Center(
         child: Container(
           padding: EdgeInsets.all(15),
@@ -34,28 +40,6 @@ class _ConfigPageState extends State<ConfigPage> {
                                 }
                               }
                             ,)
-                            /*Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(headItem.name, style: Theme.of(context).textTheme.titleMedium!),
-                                /*SizedBox(
-                                  width: 250,
-                                  child: TextField(
-                                    decoration: InputDecoration(border: OutlineInputBorder(), hintText: headItem.name, helperText: "Head Name",),
-                                    autocorrect: false,
-                                    onSubmitted: (String? inputValue) {
-                                      inputValue ??= headItem.name;
-                                      provider.updateAKSName(provider.heads, headItem.name, inputValue);
-                                    },
-                                  ),
-                                ),*/
-                                Text('${headItem.height}"'),
-                                ElevatedButton.icon(
-                                  name: Icon(Icons.edit),
-                                  onPressed: null,
-                                )
-                              ]
-                            ),*/
                           ),
                           Gap(20),
                         ],

@@ -6,31 +6,35 @@ import 'dart:ui';
 import 'package:heightcalc/imports.dart';
 
 void main() {
-  runApp(const HeightCalcApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => HeightCalcAppState(),
+        ),
+      ],
+      child: HeightCalcApp(),
+    )
+  );
 }
-
-final GlobalKey<NavigatorState> navKey = GlobalKey<NavigatorState>();
 
 class HeightCalcApp extends StatelessWidget {
   const HeightCalcApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => HeightCalcAppState(),
-      child: MaterialApp(
-        title: 'HeightCalc',
-        navigatorKey: navKey,
-        home: const HomePage(),
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
-        ),
-        darkTheme: ThemeData.dark(),
-        themeMode: ThemeMode.system,
-        routes: {
-          '/config': (context) => const ConfigPage(),
-        }
+    return MaterialApp(
+      title: 'HeightCalc',
+      navigatorKey: AppGlobal.navKey,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueGrey),
       ),
+      darkTheme: ThemeData.dark(),
+      themeMode: ThemeMode.system,
+      routes: {
+        '/': (context) => const HomePage(),
+        '/config': (context) => const ConfigPage(),
+      }
     );
   }
 }

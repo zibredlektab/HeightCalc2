@@ -78,14 +78,12 @@ class _HomePageState extends State<HomePage> {
                             },
                             borderRadius: BorderRadius.circular(5),
                             isDense: false,
-                            items: [
-                              for (var head in provider.heads) ...[
-                                DropdownMenuItem<TripodHead>(
-                                  value: head,
-                                  child: Text(head.name),
-                                ),
-                              ]
-                            ],
+                            items: provider.heads.map<DropdownMenuItem<TripodHead>>((TripodHead head) {
+                              return DropdownMenuItem<TripodHead>(
+                                value: head,
+                                child: Text(head.name),
+                              );
+                            }).toList(),
                           ),
                         ),
                       ]
@@ -130,7 +128,7 @@ class _HomePageState extends State<HomePage> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            navKey.currentState?.pushNamed('/config');
+            AppGlobal.navKey.currentState?.pushNamed('/config');
           },
           child: const Text('Config'),
         ),
