@@ -1,6 +1,10 @@
-import 'package:heightcalc/data_types/aks.dart';
 
-class GroundAKS extends AKS {
+import 'package:heightcalc/data_types/generic/complex_support.dart';
 
-  GroundAKS(super._name, super._height, {super.worksWith});
+class GroundAKS extends ComplexSupport {
+  GroundAKS({
+    required super.name,
+    required super.height,
+    required super.configurations,
+  });
 }
