@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:heightcalc/data_types/data_types.dart';
 import 'package:heightcalc/solution_model.dart';
 
 class Solution extends StatelessWidget {

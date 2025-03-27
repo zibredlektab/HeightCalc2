@@ -1,8 +1,8 @@
-import 'package:heightcalc/data_types/generic/aks.dart';
+import 'package:heightcalc/data_types/data_types.dart';
 
-class TripodHead extends AKS {
+class TripodHead extends ComplexSupport {
   TripodHead({
     required super.name,
-    required super.height
+    required super.configurations,
     });
 }

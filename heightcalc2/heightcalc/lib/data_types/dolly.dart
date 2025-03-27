@@ -4,7 +4,6 @@ class Dolly extends ComplexSupport {
   Dolly({
     required super.name,
     required super.configurations,
-    super.height = 0,
     this.hasTrack = false,
     this.trackHeight = 0,
   });

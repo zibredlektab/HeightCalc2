@@ -1,16 +1,17 @@
 import 'package:heightcalc/data_types/data_types.dart';
+import 'package:heightcalc/data_types/generic/complex_support_configuration.dart';
 import 'package:heightcalc/solution_model.dart';
-import 'package:heightcalc/user_items.dart';
+import 'package:heightcalc/inventory.dart';
 
 class Calculator {
-  UserItems items;
-  int baseHeight = 0;
-  int shotHeight = 0;
-  int goalHeight = 0;
-  List<SolutionModel> _currentSolutions = [];
+  Inventory inventory;
+  int baseHeight = 0; // Base of camera to center of lens
+  int shotHeight = 0; // Desired height of lens for this particular setup
+  int mountHeight = 0; // How much height is left to account for (this diminishes as we add support items below) 
+  List<SolutionModel> _currentSolutions = []; // The list of all valid solutions for the requested shotHeight
 
-  Calculator(this.items) {
-    baseHeight = items.baseHeight;
+  Calculator(this.inventory) {
+    baseHeight = inventory.baseHeight;
   }
 
   List<SolutionModel> calculateHeight (int height) {
@@ -21,50 +22,63 @@ class Calculator {
         then work out what aks are available to add onto these (rollers / appleboxes / risers)
         finally, build a solutionmodel for each valid solution, ordered by preference
     */
-    removeAllSolutions();
+    removeAllSolutions(); // Start from scratch
 
     shotHeight = height;
-    goalHeight = shotHeight - baseHeight; // camera height
-    goalHeight -= items.currentHead!.height; // head height
-    for (var i in items.requiredAKS) { // required AKS heights
-      goalHeight -= i.height;
+    mountHeight = shotHeight - baseHeight; // camera height
+    mountHeight -= inventory.currentHead!.configurations.first.minHeight; // head height
+    print ("subtracted baseheight of $baseHeight and head height of ${inventory.currentHead!.configurations.first.minHeight}");
+    for (var i in inventory.requiredAKS) { // required AKS heights
+      mountHeight -= i.configurations.first.minHeight;
+      print ("subtracted height of ${i.configurations.first.minHeight} for item ${i.name}");
     }
 
-    // goalHeight now represents only support items
-
-    for (var i in items.complexSupports) { // support lists should always be ordered from shortest to tallest
-      if (i.height > shotHeight) {
-        break;
+    // mountHeight now represents only support inventory (everything below the Mitchell mount)
+    for (var i in inventory.coreSupports) {
+      print("evaluating ${i.name} for height $mountHeight");
+      // get every configuration that is at or below mountHeight
+      List<ComplexSupportConfiguration> configs = i.getConfigurationsForHeight(mountHeight);
+      if (configs.isNotEmpty) {
+        for (var j in configs) {
+          _currentSolutions.add(makeSolutionModel(
+            item: i,
+            configuration: j)
+          );
+        }
       } else {
-        _currentSolutions.add(makeSolution(i));
-      }
-    }
-
-    for (var i in items.genericSupports) { // support lists should always be ordered from shortest to tallest
-      if (i.height > shotHeight) {
-        break;
-      } else {
-        _currentSolutions.add(makeSolution(i));
+        print("no valid configurations for ${i.name}");
       }
     }
 
     return _currentSolutions;
   }
 
-  SolutionModel makeSolution(AKS item) {
+  SolutionModel makeSolutionModel({required ComplexSupport item, required ComplexSupportConfiguration configuration}) {
+    // Parameter 'item' is a configuration that is not already taller than mountHeight, so find the combination of groundAKS that will make it work
 
-    List<AKS> supportList = [item];
+    List<SolutionModelItem> supportList = [SolutionModelItem(count: 1, item: item, configuration: configuration)];
 
     SolutionModel solutionModel = SolutionModel(items: supportList);
 
-    if (item.height == goalHeight) {
+    if (configuration.isHeightWithinRange(mountHeight)) {
+      // configuration is already good to go
       return solutionModel;
+    } else {
+      // need to add up groundAKS
+      int workingHeight = mountHeight;
+      workingHeight -= configuration.minHeight;
+      for (var i in inventory.groundAKS) { // groundAKS must be in order from heaviest support to lightest (typically full applebox #3 to pancake)
+        print("ground item ${i.name} has ${i.configurations.length} configurations");
+        for (var j in i.configurations) {
+          int numberOf = (workingHeight / j.minHeight).floor(); // how many of this groundaks item will fit into the remaining height
+          print("using $numberOf of ${i.name} in configuration ${j.name} with minHeight ${j.minHeight}");
+          if (numberOf > 0) solutionModel.items.add(SolutionModelItem(count: numberOf, item: i, configuration: j)); // TODO this is only accounting for the first configuration of said groundAKS
+          workingHeight -= (j.minHeight * numberOf);
+        }
+      }
     }
 
-    if (item is ComplexSupport) {
-      // check if rollers will get us there
-      
-    }
+
 
     return solutionModel;
   }

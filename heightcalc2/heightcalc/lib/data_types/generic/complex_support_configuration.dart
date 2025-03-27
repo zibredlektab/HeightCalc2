@@ -1,7 +1,7 @@
 class ComplexSupportConfiguration {
   // TODO optionally specify a non-adjustable height instead of min & max
   ComplexSupportConfiguration({
-    required this.name,
+    this.name = "",
     required this.minHeight,
     required this.maxHeight,
   });
@@ -10,9 +10,14 @@ class ComplexSupportConfiguration {
   int minHeight;
   int maxHeight;
 
+  bool canReachHeight(int testHeight) {
+    // testHeight needs to be above minHeight, but it is okay if it is below maxHeight
+    return testHeight >= minHeight ?  true : false;
+  }
+
   bool isHeightWithinRange(int testHeight) {
-    if (testHeight >= minHeight && testHeight <= maxHeight) return true;
-    return false;
+    // is testHeight specifically within range
+    return (testHeight >= minHeight && testHeight <= maxHeight) ? true : false;
   }
 
 }
