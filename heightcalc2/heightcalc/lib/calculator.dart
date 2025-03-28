@@ -27,15 +27,15 @@ class Calculator {
     shotHeight = height;
     mountHeight = shotHeight - baseHeight; // camera height
     mountHeight -= inventory.currentHead!.configurations.first.minHeight; // head height
-    print ("subtracted baseheight of $baseHeight and head height of ${inventory.currentHead!.configurations.first.minHeight}");
+   // print ("subtracted baseheight of $baseHeight and head height of ${inventory.currentHead!.configurations.first.minHeight}");
     for (var i in inventory.requiredAKS) { // required AKS heights
       mountHeight -= i.configurations.first.minHeight;
-      print ("subtracted height of ${i.configurations.first.minHeight} for item ${i.name}");
+     // print ("subtracted height of ${i.configurations.first.minHeight} for item ${i.name}");
     }
 
     // mountHeight now represents only support inventory (everything below the Mitchell mount)
     for (var i in inventory.coreSupports) {
-      print("evaluating ${i.name} for height $mountHeight");
+      //print("evaluating ${i.name} for height $mountHeight");
       // get every configuration that is at or below mountHeight
       List<ComplexSupportConfiguration> configs = i.getConfigurationsForHeight(mountHeight);
       if (configs.isNotEmpty) {
@@ -46,7 +46,7 @@ class Calculator {
           );
         }
       } else {
-        print("no valid configurations for ${i.name}");
+       // print("no valid configurations for ${i.name}");
       }
     }
 
@@ -68,11 +68,11 @@ class Calculator {
       int workingHeight = mountHeight;
       workingHeight -= configuration.minHeight;
       for (var i in inventory.groundAKS) { // groundAKS must be in order from heaviest support to lightest (typically full applebox #3 to pancake)
-        print("ground item ${i.name} has ${i.configurations.length} configurations");
+       // print("ground item ${i.name} has ${i.configurations.length} configurations");
         for (var j in i.configurations) {
           int numberOf = (workingHeight / j.minHeight).floor(); // how many of this groundaks item will fit into the remaining height
-          print("using $numberOf of ${i.name} in configuration ${j.name} with minHeight ${j.minHeight}");
-          if (numberOf > 0) solutionModel.items.add(SolutionModelItem(count: numberOf, item: i, configuration: j)); // TODO this is only accounting for the first configuration of said groundAKS
+         // print("using $numberOf of ${i.name} in configuration ${j.name} with minHeight ${j.minHeight}");
+          if (numberOf > 0) solutionModel.items.add(SolutionModelItem(count: numberOf, item: i, configuration: j));
           workingHeight -= (j.minHeight * numberOf);
         }
       }
