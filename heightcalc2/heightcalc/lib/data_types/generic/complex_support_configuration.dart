@@ -4,11 +4,13 @@ class ComplexSupportConfiguration {
     this.name = "",
     required this.minHeight,
     required this.maxHeight,
+    this.canStack = true,
   });
 
   String name;
   int minHeight;
   int maxHeight;
+  bool canStack = true;
 
   bool canReachHeight(int testHeight) {
     // testHeight needs to be above minHeight, but it is okay if it is below maxHeight

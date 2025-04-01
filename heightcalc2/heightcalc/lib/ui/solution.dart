@@ -19,5 +19,9 @@ class Solution extends StatelessWidget {
     );
   }
 
+  get length {
+    return model.items.length;
+  }
+
 
 }

@@ -25,18 +25,18 @@ class SolutionModel {
   String getList() {
     String list = "";
     for (var i in items) {
-      if ((i != items.first) && ((items.length < 2) || (items.length > 2 && i == items.last))) list += " and";
+      if (i != items.first) list += " ";
+      if ((i != items.first) && ((items.length < 2) || (items.length > 2 && i == items.last))) list += "and ";
       if (i.count > 1) {
-        list += " ${i.count}x ${i.item.name}";
-        if (i.item.configurations.length > 1) {
-          list += " ${i.configuration.name}";
-        }
+        list += "${i.count}x ${i.item.name}";
       } else {
-        list += " ${i.item.name}";
-        if (i.item.configurations.length > 1) {
-          list += " ${i.configuration.name}";
-        }
+        list += "${i.item.name}";
       }
+
+      if (i.item.configurations.length > 1) {
+        list += " (${i.configuration.name})";
+      }
+
       if (i != items.last) list += ",";
     }
     return list;

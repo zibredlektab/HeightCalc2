@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:heightcalc/data_types/data_types.dart';
 import 'package:heightcalc/main.dart';
+import 'package:heightcalc/ui/aks_sheet/aks_sheet.dart';
 
 class HomePage extends StatefulWidget{
   const HomePage({super.key});
@@ -93,15 +94,14 @@ class _HomePageState extends State<HomePage> {
               Gap(10),
               ElevatedButton(
                 onPressed: () {
-                  /*showModalBottomSheet<void>(
+                  showModalBottomSheet<void>(
                     context: context,
-                    builder: (_) => AKSBottomSheet(),
-                  );*/
+                    builder: (_) => AKSSheet(),
+                  );
                 },
-                child: Text("AKS"),
+                child: Text("Choose AKS"),
               ),
               Gap(10),
-              Text('$goalHeight inches to lens, ${selectedHead?.name} head is in use'),
               Consumer<HeightCalcAppState>(
                 builder: (context, provider, child) {
                   return Column(
@@ -124,11 +124,17 @@ class _HomePageState extends State<HomePage> {
                       ),
                       if (provider.solutions.isNotEmpty)
                         Column(
+                          mainAxisSize: MainAxisSize.min,
                           children:[
-                            ListView(
-                              shrinkWrap: true,
-                              children: provider.solutions,
-                            ),
+                            if (provider.solutions.isNotEmpty) ...[
+                              Text("Solutions:", style: TextStyle(fontWeight: FontWeight.bold),),
+                              Gap(5),
+                              ListView(
+                                shrinkWrap: true,
+                                padding: EdgeInsets.symmetric(horizontal: 20),
+                                children: provider.solutionsByComplexity(),
+                              ),
+                            ]
                           ],
                         )
                     ],

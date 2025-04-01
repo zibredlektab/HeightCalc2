@@ -75,11 +75,24 @@ class HeightCalcAppState extends ChangeNotifier {
       ),
     ];
 
+    inventory.headAKS = [
+      HeadAKS(name: "Tango", configurations: [
+        ComplexSupportConfiguration(minHeight: 2, maxHeight: 2)
+      ]),
+      HeadAKS(name: "Slider", configurations: [
+        ComplexSupportConfiguration(minHeight: 6, maxHeight: 6),
+        ComplexSupportConfiguration(name: "On Boxes", minHeight: 4, maxHeight: 4),
+      ]),
+      HeadAKS(name: "R-O", configurations: [
+        ComplexSupportConfiguration(minHeight: 5, maxHeight: 5),
+      ]),
+    ];
+
     inventory.groundAKS = [
       GroundAKS(
         name: "Full Apple", configurations: [
-          ComplexSupportConfiguration(name: "#3", minHeight: 20, maxHeight: 20),
-          ComplexSupportConfiguration(name: "#2", minHeight: 12, maxHeight: 12),
+          ComplexSupportConfiguration(name: "#3", minHeight: 20, maxHeight: 20, canStack: false),
+          ComplexSupportConfiguration(name: "#2", minHeight: 12, maxHeight: 12, canStack: false),
           ComplexSupportConfiguration(name: "#1", minHeight: 8, maxHeight: 8),
         ]
       ),
@@ -113,7 +126,28 @@ class HeightCalcAppState extends ChangeNotifier {
     for (var i in models) {
       solutions.add(Solution(model: i));
     }
+    super.notifyListeners();
+  }
+
+  void toggleRequiredAKS(ComplexSupport item) {
+    if (inventory.requiredAKS.contains(item)) {
+      inventory.requiredAKS.remove(item);
+    } else {
+      inventory.requiredAKS.add(item);
+    }
     notifyListeners();
+  }
+
+  @override
+  void notifyListeners() {
+    newHeight(calc.shotHeight);
+    super.notifyListeners;
+  }
+
+  List<Solution> solutionsByComplexity() {
+    List<Solution> sortedList = List.from(solutions);
+    sortedList.sort((a,b) => a.length.compareTo(b.length));
+    return sortedList;
   }
 }
 
