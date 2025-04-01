@@ -99,7 +99,7 @@ class _HomePageState extends State<HomePage> {
                     builder: (_) => AKSSheet(),
                   );
                 },
-                child: Text("Choose AKS"),
+                child: Text("Shot Setup"),
               ),
               Gap(10),
               Consumer<HeightCalcAppState>(
