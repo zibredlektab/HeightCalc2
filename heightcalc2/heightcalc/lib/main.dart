@@ -6,12 +6,13 @@ import 'package:heightcalc/inventory.dart';
 import 'package:heightcalc/solution_model.dart';
 import 'package:heightcalc/ui/solution.dart';
 import 'package:provider/provider.dart';
-export 'package:heightcalc/app_global.dart';
 import 'package:heightcalc/app_global.dart';
 import 'package:heightcalc/ui/home_page/home_page.dart';
 import 'package:heightcalc/ui/config_page/config_page.dart';
+export 'package:flutter/material.dart';
 export 'package:gap/gap.dart';
 export 'package:provider/provider.dart';
+export 'package:heightcalc/app_global.dart';
 
 
 
@@ -46,6 +47,8 @@ class HeightCalcAppState extends ChangeNotifier {
       ]),
       TripodHead(name: "ArriHead", configurations: [
         ComplexSupportConfiguration(minHeight: 22, maxHeight: 22),
+        ComplexSupportConfiguration(name: "with tilt plate", minHeight: 24, maxHeight: 24),
+        
       ]),
     ];
     inventory.currentHead = inventory.tripodHeads.first;

@@ -30,7 +30,7 @@ class SolutionModel {
       if (i.count > 1) {
         list += "${i.count}x ${i.item.name}";
       } else {
-        list += "${i.item.name}";
+        list += i.item.name;
       }
 
       if (i.item.configurations.length > 1) {

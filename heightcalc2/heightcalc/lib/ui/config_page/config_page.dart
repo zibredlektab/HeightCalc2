@@ -1,6 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:heightcalc/main.dart';
-import 'package:gap/gap.dart';
+import 'config_item_tile.dart';
 
 class ConfigPage extends StatefulWidget {
   const ConfigPage({super.key});
@@ -22,22 +21,41 @@ class _ConfigPageState extends State<ConfigPage> {
             child: ListView(
               padding: EdgeInsets.all(20),
               children:[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text("Heads"),
-                  ]
-                ),
+                Center(child: Text("Heads")),
                 Gap(5),
                 for (var i in provider.inventory.tripodHeads) ...[
                   Card(
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-                      title: Text('${i.name}: ${i.configurations[0].minHeight} inches'),
-                    ),
+                    child: ConfigItemTile(item: i),
                   ),
                   Gap(5),
-                ]
+                ],
+                Gap(15),
+                Center(child: Text("Head Accessories")),
+                Gap(5),
+                for(var i in provider.inventory.headAKS) ...[
+                  Card(
+                    child: ConfigItemTile(item: i, provider: provider,),
+                  ),
+                  Gap(5),
+                ],
+                Gap(15),
+                Center(child: Text("Core Supports")),
+                Gap(5),
+                for(var i in provider.inventory.coreSupports) ...[
+                  Card(
+                    child: ConfigItemTile(item: i),
+                  ),
+                  Gap(5),
+                ],
+                Gap(15),
+                Center(child: Text("Ground Accessories")),
+                Gap(5),
+                for(var i in provider.inventory.groundAKS) ...[
+                  Card(
+                    child: ConfigItemTile(item: i),
+                  ),
+                  Gap(5),
+                ],
               ],
             )
           );
