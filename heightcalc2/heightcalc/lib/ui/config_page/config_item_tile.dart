@@ -6,9 +6,8 @@ class ConfigItemTile extends StatefulWidget {
 
   final ComplexSupport item; 
   final HeightCalcAppState provider;
-  final List<ComplexSupport> list;
 
-  const ConfigItemTile({required this.item, required this.provider, required this.list, super.key});
+  const ConfigItemTile({required this.item, required this.provider, super.key});
   @override
   ConfigItemTileState createState() => ConfigItemTileState();
 }
@@ -17,8 +16,8 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
   bool _editing = false;
   late ComplexSupport _item;
-  late HeightCalcAppState _provider;
-  late List<ComplexSupport> _list;
+  late HeightCalcAppState _provider = widget.provider;
+  //late List<ComplexSupport> _list;
 
   TextEditingController _nameEditingController = TextEditingController();
 
@@ -27,7 +26,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     super.initState();
     _item = widget.item;
     _provider = widget.provider;
-    _list = widget.list;
+    //_list = widget.list;
     _editing = false;
   }
 
@@ -172,9 +171,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   }
 
   void _save() {
-    _item.name = _nameEditingController.text;
-    _provider.inventory.;
-    _item.
+    _provider.updateItem(_item, name: _nameEditingController.text);
     _toggleEdit();
   }
 

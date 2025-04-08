@@ -152,6 +152,20 @@ class HeightCalcAppState extends ChangeNotifier {
     sortedList.sort((a,b) => a.length.compareTo(b.length));
     return sortedList;
   }
+
+  void updateItem(ComplexSupport item, {String name = ""}) {
+    // Update the specified item with the specified parameters
+    if (name != "") {
+      item.name = name;
+    }
+
+    notifyListeners();
+  }
+
+  void removeItem(ComplexSupport item) {
+
+    notifyListeners();
+  }
 }
 
 class HeightCalcApp extends StatelessWidget {
@@ -179,23 +193,6 @@ class HeightCalcApp extends StatelessWidget {
         '/': (context) => const HomePage(),
         '/config': (context) => const ConfigPage(),
       },
-      /*home: Scaffold(
-        body: Center(
-          child: Container(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Text("78 inches:"),
-                Expanded(
-                  child: ListView(
-                    children: solutions
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),*/
     );
   }
 }

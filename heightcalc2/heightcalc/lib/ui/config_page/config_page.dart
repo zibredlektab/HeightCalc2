@@ -25,7 +25,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 Gap(5),
                 for (var i in provider.inventory.tripodHeads) ...[
                   Card(
-                    child: ConfigItemTile(item: i),
+                    child: ConfigItemTile(item: i, provider: provider,),
                   ),
                   Gap(5),
                 ],
@@ -43,7 +43,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 Gap(5),
                 for(var i in provider.inventory.coreSupports) ...[
                   Card(
-                    child: ConfigItemTile(item: i),
+                    child: ConfigItemTile(item: i, provider: provider,),
                   ),
                   Gap(5),
                 ],
@@ -52,7 +52,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 Gap(5),
                 for(var i in provider.inventory.groundAKS) ...[
                   Card(
-                    child: ConfigItemTile(item: i),
+                    child: ConfigItemTile(item: i, provider: provider,),
                   ),
                   Gap(5),
                 ],
