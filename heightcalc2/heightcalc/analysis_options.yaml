@@ -3,3 +3,4 @@ analyzer:
   errors:
     prefer_final_fields: ignore
     avoid_print: ignore
+    type_literal_in_constant_pattern: ignore

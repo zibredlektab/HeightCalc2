@@ -36,7 +36,7 @@ class Calculator {
     // mountHeight now represents only support inventory (everything below the Mitchell mount)
     
     for (var i in inventory.coreSupports) {
-      print("evaluating ${i.name} for height $mountHeight");
+      //print("evaluating ${i.name} for height $mountHeight");
       // get every configuration that is at or below mountHeight at the configuration's minimum height
       List<ComplexSupportConfiguration> configs = i.getConfigurationsForHeight(mountHeight);
       if (configs.isNotEmpty) {
@@ -65,9 +65,9 @@ class Calculator {
     } else {
       // need to add up groundAKS
       int workingHeight = mountHeight;
-      print("working height is $workingHeight");
+      //print("working height is $workingHeight");
       workingHeight -= configuration.maxHeight;
-      print("working height without the selected configuration (${item.name}.${configuration.name}) is $workingHeight");
+      //print("working height without the selected configuration (${item.name}.${configuration.name}) is $workingHeight");
       for (var i in inventory.groundAKS) { // groundAKS must be in order from heaviest support to lightest (typically full applebox #3 to pancake)
        // print("ground item ${i.name} has ${i.configurations.length} configurations");
         for (var j in i.configurations) {

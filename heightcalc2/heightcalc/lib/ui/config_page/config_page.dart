@@ -12,7 +12,7 @@ class _ConfigPageState extends State<ConfigPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Config"),
+        title: const Text("Inventory"),
       ),
       body: 
         Consumer<HeightCalcAppState>(

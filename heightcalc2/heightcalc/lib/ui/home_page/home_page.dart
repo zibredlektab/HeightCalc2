@@ -12,8 +12,6 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<HeightCalcAppState>();
-    var selectedHead = appState.inventory.currentHead;
-    var goalHeight = appState.calc.shotHeight;
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),

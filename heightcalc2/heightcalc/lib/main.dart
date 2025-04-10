@@ -143,7 +143,9 @@ class HeightCalcAppState extends ChangeNotifier {
 
   @override
   void notifyListeners() {
-    newHeight(calc.shotHeight);
+    if (inventory.currentHead != null) {
+      newHeight(calc.shotHeight);
+    }
     super.notifyListeners;
   }
 
@@ -153,10 +155,14 @@ class HeightCalcAppState extends ChangeNotifier {
     return sortedList;
   }
 
-  void updateItem(ComplexSupport item, {String name = ""}) {
+  void updateItem(ComplexSupport item, {String name = "", List<ComplexSupportConfiguration> configs = const []}) {
     // Update the specified item with the specified parameters
     if (name != "") {
       item.name = name;
+    }
+
+    if (configs.isNotEmpty) {
+      item.configurations = configs;
     }
 
     notifyListeners();
@@ -164,7 +170,36 @@ class HeightCalcAppState extends ChangeNotifier {
 
   void removeItem(ComplexSupport item) {
 
+    if (inventory.currentHead == item) {
+      inventory.currentHead = null;
+    }
+
+    List<ComplexSupport> list = _getListforItem(item);
+    list.remove(item);
+
+    print("Removed item ${item.name} from list $list");
+
     notifyListeners();
+  }
+
+  List<ComplexSupport> _getListforItem(ComplexSupport item) {
+    switch(item.runtimeType) {
+      case TripodHead: {
+        return inventory.tripodHeads;
+      }
+      case HeadAKS: {
+        return inventory.headAKS;
+      }
+      case GroundAKS: {
+        return inventory.groundAKS;
+      }
+      case ComplexSupport: {
+        return inventory.coreSupports;
+      }
+      default:
+        return inventory.coreSupports;
+
+    }
   }
 }
 
@@ -174,13 +209,6 @@ class HeightCalcApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    /*List<SolutionModel> models = calc.calculateHeight(78);
-    solutions = [];
-    for (var i in models) {
-      print("adding solution ${i.getList()} to the solutions list");
-      solutions.add(Solution(model: i));
-    }*/
-
     return MaterialApp( 
       title: 'HeightCalc',
       navigatorKey: AppGlobal.navKey,
