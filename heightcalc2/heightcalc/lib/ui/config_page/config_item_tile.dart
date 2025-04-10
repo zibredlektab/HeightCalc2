@@ -17,8 +17,6 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   bool _editing = false;
   late ComplexSupport _item;
   late HeightCalcAppState _provider = widget.provider;
-  bool _staticHeight = false;
-  //late List<ComplexSupport> _list;
 
   TextEditingController _nameEditingController = TextEditingController();
 
@@ -159,7 +157,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                     children: [
                       Column(
                         children: [
-                          Switch(
+                          Switch( // Static/adjustable switch
                             value: configuration.adjustableHeight,
                             onChanged: (bool value) {
                               setState(() {
@@ -171,7 +169,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                         ],
                       ),
                       Gap(10),
-                      SizedBox(
+                      SizedBox( // Min height
                         width: 75,
                         height: 48,
                         child: TextField(
@@ -181,7 +179,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                       ),
                       if (configuration.adjustableHeight) ...[
                         Text(" -  "),
-                        SizedBox(
+                        SizedBox( // Max height
                           width: 75,
                           height: 48,
                           child: TextField(
@@ -196,11 +194,16 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                 ],
               ),
             ),
-            IconButton(onPressed: _deleteConfig, icon: Icon(Icons.delete_forever_outlined)),
+            IconButton( // Remove configuration
+              icon: Icon(Icons.delete_forever_outlined),
+              onPressed: () {
+                _delete(config: configuration);
+              },
+            ),
           ],
         ),
       );
-    } else {
+    } else { // Not editing view
       String heightLabel = "";
       if (configuration.name.isEmpty) {
         heightLabel = "Default";
@@ -219,6 +222,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   }
 
   Widget get trailingButton {
+    // Buttons at the right-most edge of item tile
     if (_editing) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -232,8 +236,10 @@ class ConfigItemTileState extends State<ConfigItemTile> {
             icon: Icon(Icons.cancel),
           ),
           IconButton(
-            onPressed: _deleteItem,
             icon: Icon(Icons.delete_forever),
+            onPressed: () {
+              _delete();
+            },
           )
         ],
       );
@@ -251,8 +257,12 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     });
   }
 
-  void _deleteItem() {
-    _provider.removeItem(_item);
+  void _delete({ComplexSupportConfiguration? config}) {
+    if (config != null && _item.configurations.length == 1) {
+      _warnDefaultConfig(config);
+    } else {
+      _confirmDeletion(config: config);
+    }
   }
 
   void _save() {
@@ -260,8 +270,87 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     _toggleEdit();
   }
 
-  void _deleteConfig() {
+  Future<void> _confirmDeletion({ComplexSupportConfiguration? config}) async {
+    String toDelete = "";
+    
+    if (config != null) {
+      toDelete = "configuration \"${config.name}\" on item \"${_item.name}\"";
+    } else {
+      toDelete = "item \"${_item.name}\"";
+    }
 
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Deletion'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Are you sure you want to delete $toDelete?'),
+                Text('This action is permanent.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                if (config != null) {
+                  _provider.removeConfig(item: _item, config: config);
+                } else {
+                  _provider.removeItem(_item);
+                }
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+
+Future<void> _warnDefaultConfig(ComplexSupportConfiguration config) async {
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('This is the only configuration of item ${_item.name}.'),
+                Text('There must be at least one configuration. Do you want to delete the item instead?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Delete Item'),
+              onPressed: () {
+                _provider.removeItem(_item);
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
 }

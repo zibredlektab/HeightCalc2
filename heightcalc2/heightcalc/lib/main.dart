@@ -182,6 +182,13 @@ class HeightCalcAppState extends ChangeNotifier {
     notifyListeners();
   }
 
+  void removeConfig({required ComplexSupport item, required ComplexSupportConfiguration config}) {
+    if (item.configurations.contains(config)) {
+      item.configurations.remove(config);
+    }
+    notifyListeners();
+  }
+
   List<ComplexSupport> _getListforItem(ComplexSupport item) {
     switch(item.runtimeType) {
       case TripodHead: {
