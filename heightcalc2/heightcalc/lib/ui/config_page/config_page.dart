@@ -1,3 +1,4 @@
+import 'package:heightcalc/inventory.dart';
 import 'package:heightcalc/main.dart';
 import 'config_item_tile.dart';
 
@@ -8,56 +9,71 @@ class ConfigPage extends StatefulWidget {
 }
 
 class _ConfigPageState extends State<ConfigPage> {
+
   @override
   Widget build(BuildContext context) {
+    final int headCount = context.watch<HeightCalcAppState>().inventory.tripodHeads.length;
+    print ("Rebuilding config page, $headCount heads total:");
+    for (var head in context.read<HeightCalcAppState>().inventory.tripodHeads) {
+      print (head.name);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Inventory"),
       ),
-      body: 
+      body:
         Consumer<HeightCalcAppState>(
-          builder: (context, provider, child) {
-          return Center(
-            child: ListView(
-              padding: EdgeInsets.all(20),
-              children:[
-                Center(child: Text("Heads")),
-                Gap(5),
-                for (var i in provider.inventory.tripodHeads) ...[
-                  Card(
-                    child: ConfigItemTile(item: i, provider: provider,),
-                  ),
-                  Gap(5),
-                ],
-                Gap(15),
-                Center(child: Text("Head Accessories")),
-                Gap(5),
-                for(var i in provider.inventory.headAKS) ...[
-                  Card(
-                    child: ConfigItemTile(item: i, provider: provider,),
-                  ),
-                  Gap(5),
-                ],
-                Gap(15),
-                Center(child: Text("Core Supports")),
-                Gap(5),
-                for(var i in provider.inventory.coreSupports) ...[
-                  Card(
-                    child: ConfigItemTile(item: i, provider: provider,),
-                  ),
-                  Gap(5),
-                ],
-                Gap(15),
-                Center(child: Text("Ground Accessories")),
-                Gap(5),
-                for(var i in provider.inventory.groundAKS) ...[
-                  Card(
-                    child: ConfigItemTile(item: i, provider: provider,),
-                  ),
-                  Gap(5),
-                ],
-              ],
-            )
+          builder: (_, provider, _) {
+          return ListView(
+            padding: EdgeInsets.all(20),
+            children:[
+              Center(child: Text("Heads - $headCount total")),
+              Gap(5),
+              Column(
+                spacing: 5,
+                children: provider.inventory.tripodHeads.map((e){
+                  String thelist = "";
+                  for (var i in provider.inventory.tripodHeads) {
+                    thelist += "${i.name}, ";
+                  }
+                  print("This list now contains ${provider.inventory.tripodHeads.length} items: $thelist");
+                  print("Making a new card for item ${e.name}");
+                  return Card(
+                    child: ConfigItemTile(item: e, provider: provider));
+                  }).toList()
+              ),
+              Gap(15),
+              Center(child: Text("Head Accessories")),
+              Gap(5),
+              Column(
+                spacing: 5,
+                children: provider.inventory.headAKS.map((e) {
+                  return Card(
+                    child: ConfigItemTile(item: e, provider: provider));
+                }).toList()
+              ),
+              Gap(15),
+              Center(child: Text("Core Supports")),
+              Gap(5),
+              Column(
+                spacing: 5,
+                children: provider.inventory.coreSupports.map((e){
+                  return Card(
+                    child: ConfigItemTile(item: e, provider: provider));
+                  }).toList()
+              ),
+              Gap(15),
+              Center(child: Text("Ground Accessories")),
+              Gap(5),
+              Column(
+                spacing: 5,
+                children: provider.inventory.groundAKS.map((e){
+                  return Card(
+                    child: ConfigItemTile(item: e, provider: provider));
+                  }).toList()
+              ),
+            ],
           );
         }
       ),

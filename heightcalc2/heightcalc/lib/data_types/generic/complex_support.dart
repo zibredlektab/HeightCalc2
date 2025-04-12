@@ -17,7 +17,7 @@ class ComplexSupport {
 
     List<ComplexSupportConfiguration> valid = [];
     for (var i in configurations) {
-     // print("testing wether configuration '${i.name}' can reach height $testHeight");
+     // print("testing whether configuration '${i.name}' can reach height $testHeight");
       if (i.canReachHeight(testHeight)) valid.add(i);
     }
 

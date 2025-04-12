@@ -31,57 +31,67 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(10),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            spacing: 10,
+
+    _item = widget.item;
+    print("Item name is ${_item.name}");
+
+    print("rebuilding config tile for ${_item.name}");
+
+    return Consumer<HeightCalcAppState>(
+      builder: (_, provider, _) {
+        return Container(
+          padding: EdgeInsets.all(10),
+          child: Column(
             children: [
-              Expanded(
-                child: Column(
-                  spacing: 10,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    nameWidget,
-                    Container(
-                      padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 5,
-                        children: [
-                          Text("Configurations:", style: TextStyle(fontSize: 12),),
-                          for (var j in _item.configurations) ...[
-                            Container(
-                              padding: EdgeInsets.all(5),
-                              decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: configWidget(j)
-                              )
-                            ),
-                          ],
-                          Gap(0),
-                        ],
-                      ),
-                    ),
-                  ],
-                )
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: Column(
+                      spacing: 10,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        nameWidget,
+                        Container(
+                          padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 5,
+                            children: [
+                              Text("Configurations:", style: TextStyle(fontSize: 12),),
+                              for (var j in _item.configurations) ...[
+                                Container(
+                                  padding: EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey,
+                                    borderRadius: BorderRadius.circular(5),
+                                  ),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: configWidget(j)
+                                  )
+                                ),
+                              ],
+                              Gap(0),
+                            ],
+                          ),
+                        ),
+                      ],
+                    )
+                  ),
+                  trailingButton,
+                ]
               ),
-              trailingButton,
-            ]
+            ],
           ),
-        ],
-      ),
+        );
+      }
     );
   }
 
@@ -135,73 +145,79 @@ class ConfigItemTileState extends State<ConfigItemTile> {
       } else {
         configNameController.text = configuration.name;
       }
-      return Padding(
-        padding: const EdgeInsets.all(5),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded( // Expanded makes sure full-width widgets still work down the tree
-              child: Column(
-                spacing: 5,
-                children: [
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: TextField(
-                      controller: configNameController,
-                      decoration: InputDecoration(label: Text("Configuration Name"), hintText: "Name"),
-                    ),
-                  ),
-                  Row(
+
+      
+      return Builder(
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.all(5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded( // Expanded makes sure full-width widgets still work down the tree
+                  child: Column(
                     spacing: 5,
                     children: [
-                      Column(
-                        children: [
-                          Switch( // Static/adjustable switch
-                            value: configuration.adjustableHeight,
-                            onChanged: (bool value) {
-                              setState(() {
-                                configuration.adjustableHeight = value;
-                              });
-                            },
-                          ),
-                          Text("Adjustable", style: TextStyle(fontSize: 10),),
-                        ],
-                      ),
-                      Gap(10),
-                      SizedBox( // Min height
-                        width: 75,
+                      SizedBox(
+                        width: double.infinity,
                         height: 48,
                         child: TextField(
-                          controller: minHeightController,
-                          decoration: minHeightDecoration,
+                          controller: configNameController,
+                          decoration: InputDecoration(label: Text("Configuration Name"), hintText: "Name"),
                         ),
                       ),
-                      if (configuration.adjustableHeight) ...[
-                        Text(" -  "),
-                        SizedBox( // Max height
-                          width: 75,
-                          height: 48,
-                          child: TextField(
-                            controller: maxHeightController,
-                            decoration: InputDecoration(label: Text("Max height"), hintText: "Max"),
+                      Row(
+                        spacing: 5,
+                        children: [
+                          Column(
+                            children: [
+                              Switch( // Static/adjustable switch
+                                value: configuration.adjustableHeight,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    configuration.adjustableHeight = value;
+                                  });
+                                },
+                              ),
+                              Text("Adjustable", style: TextStyle(fontSize: 10),),
+                            ],
                           ),
-                        ),
-                      ],
-                      Text(" inches"),
+                          Gap(10),
+                          SizedBox( // Min height
+                            width: 75,
+                            height: 48,
+                            child: TextField(
+                              controller: minHeightController,
+                              decoration: minHeightDecoration,
+                            ),
+                          ),
+                          if (configuration.adjustableHeight) ...[
+                            Text(" -  "),
+                            SizedBox( // Max height
+                              width: 75,
+                              height: 48,
+                              child: TextField(
+                                controller: maxHeightController,
+                                decoration: InputDecoration(label: Text("Max height"), hintText: "Max"),
+                              ),
+                            ),
+                          ],
+                          Text(" inches"),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
+                ),
+                IconButton( // Remove configuration
+                  icon: Icon(Icons.delete_forever_outlined),
+                  onPressed: () {
+                    _askForDeletion(config: configuration);
+                  },
+                ),
+              ],
             ),
-            IconButton( // Remove configuration
-              icon: Icon(Icons.delete_forever_outlined),
-              onPressed: () {
-                _delete(config: configuration);
-              },
-            ),
-          ],
-        ),
+          );
+        }
       );
     } else { // Not editing view
       String heightLabel = "";
@@ -238,7 +254,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
           IconButton(
             icon: Icon(Icons.delete_forever),
             onPressed: () {
-              _delete();
+              _askForDeletion();
             },
           )
         ],
@@ -251,13 +267,14 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     }
   }
 
+
   void _toggleEdit() {
     setState(() {
       _editing = !_editing;
     });
   }
 
-  void _delete({ComplexSupportConfiguration? config}) {
+  void _askForDeletion({ComplexSupportConfiguration? config}) {
     if (config != null && _item.configurations.length == 1) {
       _warnDefaultConfig(config);
     } else {
@@ -302,6 +319,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                 } else {
                   _provider.removeItem(_item);
                 }
+                _toggleEdit();
                 Navigator.of(context).pop();
               },
             ),
@@ -318,8 +336,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   }
 
 
-Future<void> _warnDefaultConfig(ComplexSupportConfiguration config) async {
-
+  Future<void> _warnDefaultConfig(ComplexSupportConfiguration config) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -352,5 +369,4 @@ Future<void> _warnDefaultConfig(ComplexSupportConfiguration config) async {
       },
     );
   }
-
 }

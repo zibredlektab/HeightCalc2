@@ -25,7 +25,7 @@ void main() {
           create: (context) => HeightCalcAppState(),
         ),
       ],
-      child: HeightCalcApp()),
+      child: const HeightCalcApp()),
   );
 }
 
@@ -129,7 +129,8 @@ class HeightCalcAppState extends ChangeNotifier {
     for (var i in models) {
       solutions.add(Solution(model: i));
     }
-    super.notifyListeners();
+
+    notifyListeners();
   }
 
   void toggleRequiredAKS(ComplexSupport item) {
@@ -141,12 +142,12 @@ class HeightCalcAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  @override
-  void notifyListeners() {
+  void update() {
     if (inventory.currentHead != null) {
       newHeight(calc.shotHeight);
     }
-    super.notifyListeners;
+
+    notifyListeners();
   }
 
   List<Solution> solutionsByComplexity() {
@@ -165,7 +166,7 @@ class HeightCalcAppState extends ChangeNotifier {
       item.configurations = configs;
     }
 
-    notifyListeners();
+    update();
   }
 
   void removeItem(ComplexSupport item) {
@@ -178,15 +179,16 @@ class HeightCalcAppState extends ChangeNotifier {
     list.remove(item);
 
     print("Removed item ${item.name} from list $list");
+    
 
-    notifyListeners();
+    update();
   }
 
   void removeConfig({required ComplexSupport item, required ComplexSupportConfiguration config}) {
     if (item.configurations.contains(config)) {
       item.configurations.remove(config);
     }
-    notifyListeners();
+    update();
   }
 
   List<ComplexSupport> _getListforItem(ComplexSupport item) {
