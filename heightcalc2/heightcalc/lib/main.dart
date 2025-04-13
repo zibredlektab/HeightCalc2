@@ -42,10 +42,10 @@ class HeightCalcAppState extends ChangeNotifier {
     solutions = [];
 
     inventory.tripodHeads = [
-      TripodHead(name: "2575", configurations: [
+      ComplexSupport(type: SupportType.tripodHead, name: "2575", configurations: [
         ComplexSupportConfiguration(minHeight: 16, maxHeight: 16),
       ]),
-      TripodHead(name: "ArriHead", configurations: [
+      ComplexSupport(type: SupportType.tripodHead, name: "ArriHead", configurations: [
         ComplexSupportConfiguration(minHeight: 22, maxHeight: 22),
         ComplexSupportConfiguration(name: "with tilt plate", minHeight: 24, maxHeight: 24),
         
@@ -55,23 +55,23 @@ class HeightCalcAppState extends ChangeNotifier {
 
     inventory.coreSupports = [
       ComplexSupport(
-        name: "Lo-Hat", configurations: [
+        type: SupportType.coreSupport, name: "Lo-Hat", configurations: [
           ComplexSupportConfiguration(minHeight: 3, maxHeight: 3),
         ]
       ),
       ComplexSupport(
-        name: "Hi-Hat", configurations: [
+        type: SupportType.coreSupport, name: "Hi-Hat", configurations: [
           ComplexSupportConfiguration(minHeight: 6, maxHeight: 6),
         ]
       ),
       ComplexSupport(
-        name: "Babies", configurations: [
+        type: SupportType.coreSupport, name: "Babies", configurations: [
           ComplexSupportConfiguration(name: "Flat Spreaders", minHeight: 20, maxHeight: 36),
           ComplexSupportConfiguration(name: "Rolling Spreaders", minHeight: 24, maxHeight: 40),
         ]
       ),
       ComplexSupport(
-        name: "Standards", configurations: [
+        type: SupportType.coreSupport, name: "Standards", configurations: [
           ComplexSupportConfiguration(name: "Flat Spreaders", minHeight: 36, maxHeight: 66),
           ComplexSupportConfiguration(name: "Rolling Spreaders", minHeight: 40, maxHeight: 70),
         ]
@@ -79,45 +79,45 @@ class HeightCalcAppState extends ChangeNotifier {
     ];
 
     inventory.headAKS = [
-      HeadAKS(name: "Tango", configurations: [
+      ComplexSupport(type: SupportType.headAKS, name: "Tango", configurations: [
         ComplexSupportConfiguration(minHeight: 2, maxHeight: 2)
       ]),
-      HeadAKS(name: "Slider", configurations: [
+      ComplexSupport(type: SupportType.headAKS, name: "Slider", configurations: [
         ComplexSupportConfiguration(minHeight: 6, maxHeight: 6),
         ComplexSupportConfiguration(name: "On Boxes", minHeight: 4, maxHeight: 4),
       ]),
-      HeadAKS(name: "R-O", configurations: [
+      ComplexSupport(type: SupportType.headAKS, name: "R-O", configurations: [
         ComplexSupportConfiguration(minHeight: 5, maxHeight: 5),
       ]),
     ];
 
     inventory.groundAKS = [
-      GroundAKS(
-        name: "Full Apple", configurations: [
+      ComplexSupport(
+        type: SupportType.groundAKS, name: "Full Apple", configurations: [
           ComplexSupportConfiguration(name: "#3", minHeight: 20, maxHeight: 20, canStack: false),
           ComplexSupportConfiguration(name: "#2", minHeight: 12, maxHeight: 12, canStack: false),
           ComplexSupportConfiguration(name: "#1", minHeight: 8, maxHeight: 8),
         ]
       ),
-      GroundAKS(
-        name: "Half Apple", configurations: [
+      ComplexSupport(
+        type: SupportType.groundAKS, name: "Half Apple", configurations: [
           ComplexSupportConfiguration(minHeight: 6, maxHeight: 6),
         ]
       ),
-      GroundAKS(
-        name: "Quarter Apple", configurations: [
+      ComplexSupport(
+        type: SupportType.groundAKS, name: "Quarter Apple", configurations: [
           ComplexSupportConfiguration(minHeight: 3, maxHeight: 3),
         ]
       ),
-      GroundAKS(
-        name: "Pancake", configurations: [
+      ComplexSupport(
+        type: SupportType.groundAKS, name: "Pancake", configurations: [
           ComplexSupportConfiguration(minHeight: 1, maxHeight: 1),
         ]
       ),
     ];
   }
 
-  void setHead(TripodHead newHead) {
+  void setHead(ComplexSupport newHead) {
     inventory.currentHead = newHead;
     notifyListeners();
   }
@@ -184,7 +184,27 @@ class HeightCalcAppState extends ChangeNotifier {
     update();
   }
 
-  void removeConfig({required ComplexSupport item, required ComplexSupportConfiguration config}) {
+  void addItem({
+      String? name,
+      List<ComplexSupportConfiguration> configs = const [],
+      ComplexSupport? item,
+      required List<ComplexSupport> list,
+    }) {
+    if (item != null) {
+      list.add(item);
+    } else if (name != null && configs.isNotEmpty) {
+      list.add(ComplexSupport(type: list[0].type, name: name, configurations: configs)); // TODO this will fail if there are no other items in the list
+    } else {
+      print("Something went wrong attempting to add an item to a list");
+    }
+
+    update();
+  }
+
+  void removeConfig({
+      required ComplexSupport item,
+      required ComplexSupportConfiguration config
+    }) {
     if (item.configurations.contains(config)) {
       item.configurations.remove(config);
     }
@@ -192,17 +212,17 @@ class HeightCalcAppState extends ChangeNotifier {
   }
 
   List<ComplexSupport> _getListforItem(ComplexSupport item) {
-    switch(item.runtimeType) {
-      case TripodHead: {
+    switch(item.type) {
+      case SupportType.tripodHead: {
         return inventory.tripodHeads;
       }
-      case HeadAKS: {
+      case SupportType.headAKS: {
         return inventory.headAKS;
       }
-      case GroundAKS: {
+      case SupportType.groundAKS: {
         return inventory.groundAKS;
       }
-      case ComplexSupport: {
+      case SupportType.coreSupport: {
         return inventory.coreSupports;
       }
       default:

@@ -4,17 +4,23 @@ import 'package:heightcalc/main.dart';
 
 class ConfigItemTile extends StatefulWidget {
 
-  final ComplexSupport item; 
+  final ComplexSupport item;
   final HeightCalcAppState provider;
+  final bool newItem;
 
-  const ConfigItemTile({required this.item, required this.provider, super.key});
+  const ConfigItemTile({
+    required this.item,
+    required this.provider,
+    this.newItem = false,
+    super.key});
   @override
   ConfigItemTileState createState() => ConfigItemTileState();
 }
 
 class ConfigItemTileState extends State<ConfigItemTile> {
 
-  bool _editing = false;
+  late bool _editing;
+  late bool _newItem;
   late ComplexSupport _item;
   late HeightCalcAppState _provider = widget.provider;
 
@@ -25,17 +31,19 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     super.initState();
     _item = widget.item;
     _provider = widget.provider;
-    //_list = widget.list;
-    _editing = false;
+    _newItem = widget.newItem;
+
+    if (!_newItem) {
+      _editing = false;
+    } else {
+      _editing = true;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
 
     _item = widget.item;
-    print("Item name is ${_item.name}");
-
-    print("rebuilding config tile for ${_item.name}");
 
     return Consumer<HeightCalcAppState>(
       builder: (_, provider, _) {
@@ -85,7 +93,8 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                       ],
                     )
                   ),
-                  trailingButton,
+                  if (!_newItem)
+                    trailingButton,
                 ]
               ),
             ],
@@ -106,6 +115,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
             height: 40,
             child: TextField(
               controller: _nameEditingController,
+              decoration: InputDecoration(hintText: "Name"),
             ),
           ),
           Gap(10),
@@ -337,36 +347,65 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
 
   Future<void> _warnDefaultConfig(ComplexSupportConfiguration config) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('This is the only configuration of item ${_item.name}.'),
-                Text('There must be at least one configuration. Do you want to delete the item instead?'),
-              ],
+    if (_newItem) {
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Warning'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget> [
+                  Text('This is the only configuration of this item.'),
+                  Text('There must be at least one configuration. Please add a new configuration before deleting this one.'),
+                ]
+              )
             ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Delete Item'),
-              onPressed: () {
-                _provider.removeItem(_item);
-                Navigator.of(context).pop();
-              },
+            actions: <Widget> [
+              TextButton(
+                child: const Text('Okay'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }
+              )
+            ]
+          );
+        }
+      );
+    } else {
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Warning'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  Text('This is the only configuration of item ${_item.name}.'),
+                  Text('There must be at least one configuration. Do you want to delete the item instead?'),
+                ],
+              ),
             ),
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Delete Item'),
+                onPressed: () {
+                  _provider.removeItem(_item);
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 }

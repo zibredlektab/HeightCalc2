@@ -1,5 +1,4 @@
 class ComplexSupportConfiguration {
-  // TODO optionally specify a non-adjustable height instead of min & max
   ComplexSupportConfiguration({
     this.name = "",
     required this.minHeight,

@@ -65,18 +65,18 @@ class _HomePageState extends State<HomePage> {
                             border: Border.all(color: Colors.blueGrey),
                             borderRadius: BorderRadius.circular(5),
                           ),
-                          child: DropdownButton<TripodHead>(
+                          child: DropdownButton<ComplexSupport>(
                             value: provider.inventory.currentHead,
                             underline: Container(), // get rid of that underline
                             hint: Text('Select a head'),
-                            onChanged: (TripodHead? newHead) {
+                            onChanged: (ComplexSupport? newHead) {
                               newHead ??= provider.inventory.tripodHeads.first;
                               appState.setHead(newHead);
                             },
                             borderRadius: BorderRadius.circular(5),
                             isDense: false,
-                            items: provider.inventory.tripodHeads.map<DropdownMenuItem<TripodHead>>((TripodHead head) {
-                              return DropdownMenuItem<TripodHead>(
+                            items: provider.inventory.tripodHeads.map<DropdownMenuItem<ComplexSupport>>((ComplexSupport head) {
+                              return DropdownMenuItem<ComplexSupport>(
                                 value: head,
                                 child: Text(head.name),
                               );
