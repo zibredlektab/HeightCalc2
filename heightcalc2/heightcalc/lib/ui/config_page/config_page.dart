@@ -33,7 +33,7 @@ class _ConfigPageState extends State<ConfigPage> {
                     IconButton(
                       icon: Icon(Icons.add_circle),
                       onPressed: () {
-                        _addItem(provider.inventory.tripodHeads, provider);
+                        _addItem(SupportType.tripodHead, provider);
                       },
                     ),  
                   ],
@@ -83,50 +83,20 @@ class _ConfigPageState extends State<ConfigPage> {
     );
   }
 
-  Future<void> _addItem(List<ComplexSupport> list, HeightCalcAppState provider) async {
+  Future<void> _addItem(SupportType type, HeightCalcAppState provider) async {
 
     final ComplexSupport newItem = ComplexSupport(
-      type: list[0].type, // TODO this will fail if there are no other items in the list
-      name: "",
+      type: type,
+      name: "New Item",
       configurations: [
         ComplexSupportConfiguration(minHeight: 0, maxHeight: 0),
       ],
+      newItem: true,
     );
 
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          content: IntrinsicWidth(
-            child: Column(
-              spacing: 5,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text("Add a new tripod head", style: TextStyle(fontSize: 20),),
-                Card(child: ConfigItemTile(item: newItem, provider: provider, newItem: true,)),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Confirm'),
-              onPressed: () {
-                print("confirm add item button pressed, attempting to add an item");
-                provider.addItem(item: newItem, list: list);
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+    final List<ComplexSupport> list = provider.getListForType(type);
+    
+    provider.addItem(item: newItem, list: list);
   }
 
 

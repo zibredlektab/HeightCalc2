@@ -6,11 +6,13 @@ class ComplexSupport {
   SupportType type;
   String name;
   List<ComplexSupportConfiguration> configurations;
+  bool newItem;
   
   ComplexSupport({
     required this.type,
     required this.name,
     required this.configurations,
+    this.newItem = false,
   });
 
 

@@ -55,6 +55,12 @@ class HeightCalcAppState extends ChangeNotifier {
 
     inventory.coreSupports = [
       ComplexSupport(
+        type: SupportType.coreSupport, name: "Mika", configurations: [
+          ComplexSupportConfiguration(name: "Standing", minHeight: 60, maxHeight: 60),
+          ComplexSupportConfiguration(name: "Sitting", minHeight: 40, maxHeight: 40),
+        ]
+      ),
+      ComplexSupport(
         type: SupportType.coreSupport, name: "Lo-Hat", configurations: [
           ComplexSupportConfiguration(minHeight: 3, maxHeight: 3),
         ]
@@ -166,6 +172,8 @@ class HeightCalcAppState extends ChangeNotifier {
       item.configurations = configs;
     }
 
+    item.newItem = false;
+
     update();
   }
 
@@ -175,7 +183,7 @@ class HeightCalcAppState extends ChangeNotifier {
       inventory.currentHead = null;
     }
 
-    List<ComplexSupport> list = _getListforItem(item);
+    List<ComplexSupport> list = getListForItem(item);
     list.remove(item);
 
     print("Removed item ${item.name} from list $list");
@@ -191,9 +199,9 @@ class HeightCalcAppState extends ChangeNotifier {
       required List<ComplexSupport> list,
     }) {
     if (item != null) {
-      list.add(item);
+      list.insert(0, item);
     } else if (name != null && configs.isNotEmpty) {
-      list.add(ComplexSupport(type: list[0].type, name: name, configurations: configs)); // TODO this will fail if there are no other items in the list
+      list.insert(0, ComplexSupport(type: list[0].type, name: name, configurations: configs)); // TODO this will fail if there are no other items in the list
     } else {
       print("Something went wrong attempting to add an item to a list");
     }
@@ -211,8 +219,12 @@ class HeightCalcAppState extends ChangeNotifier {
     update();
   }
 
-  List<ComplexSupport> _getListforItem(ComplexSupport item) {
-    switch(item.type) {
+  List<ComplexSupport> getListForItem(ComplexSupport item) {
+    return getListForType(item.type);
+  }
+
+  List<ComplexSupport> getListForType(SupportType type) {
+    switch(type) {
       case SupportType.tripodHead: {
         return inventory.tripodHeads;
       }
@@ -230,6 +242,8 @@ class HeightCalcAppState extends ChangeNotifier {
 
     }
   }
+
+
 }
 
 class HeightCalcApp extends StatelessWidget {
