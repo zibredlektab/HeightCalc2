@@ -5,9 +5,7 @@ class ComplexSupportConfiguration {
     required this.maxHeight,
     this.canStack = true,
   }) {
-    if (minHeight == maxHeight) {
-      adjustableHeight = true;
-    }
+    checkAdjustable();
   }
 
   String name;
@@ -15,6 +13,23 @@ class ComplexSupportConfiguration {
   int maxHeight;
   bool canStack = true;
   bool adjustableHeight = false;
+
+  void checkAdjustable() {
+    if (minHeight == maxHeight) {
+      adjustableHeight = false;
+    } else {
+      adjustableHeight = true;
+    }
+  }
+
+  void updateHeight({
+    required minHeightNew,
+    required maxHeightNew
+  }) {
+    minHeight = minHeightNew;
+    maxHeight = maxHeightNew;
+    checkAdjustable();
+  }
 
   bool canReachHeight(int testHeight) {
     // testHeight needs to be above minHeight, but it is okay if it is below maxHeight

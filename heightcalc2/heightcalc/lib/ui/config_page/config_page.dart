@@ -1,6 +1,5 @@
 import 'package:heightcalc/data_types/data_types.dart';
 import 'package:heightcalc/data_types/generic/complex_support_configuration.dart';
-import 'package:heightcalc/inventory.dart';
 import 'package:heightcalc/main.dart';
 import 'config_item_tile.dart';
 

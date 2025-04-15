@@ -21,6 +21,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   late bool _newItem;
   late ComplexSupport _item;
   late HeightCalcAppState _provider = widget.provider;
+  List<ConfigTextControllerManager> managers = [];
 
   TextEditingController _nameEditingController = TextEditingController();
 
@@ -30,7 +31,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     _provider = widget.provider;
     _editing = false;
   }
-
+  
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +40,11 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
     if (_newItem) {
       _editing = true;
+    }
+
+    managers = [];
+    for (var i in _item.configurations) {
+      managers.add(ConfigTextControllerManager(minHeightController: TextEditingController(), maxHeightController: TextEditingController(), configNameController: TextEditingController(), adjustable: i.adjustableHeight));
     }
 
     return Consumer<HeightCalcAppState>(
@@ -69,7 +75,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                             spacing: 5,
                             children: [
                               Text("Configurations:", style: TextStyle(fontSize: 12),),
-                              for (var j in _item.configurations) ...[
+                              for (var j = 0; j < _item.configurations.length; j++) ...[
                                 Container(
                                   padding: EdgeInsets.all(5),
                                   decoration: BoxDecoration(
@@ -78,7 +84,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                                   ),
                                   child: SizedBox(
                                     width: double.infinity,
-                                    child: configWidget(j)
+                                    child: configWidget(configuration: _item.configurations[j], manager: managers[j]),
                                   )
                                 ),
                               ],
@@ -129,14 +135,30 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
   var testSwitch = false;
 
-  Widget configWidget(ComplexSupportConfiguration configuration) {
-    TextEditingController minHeightController = TextEditingController();
-    TextEditingController maxHeightController = TextEditingController();
-    TextEditingController configNameController = TextEditingController();
+  Widget configWidget({
+    required ComplexSupportConfiguration configuration,
+    required ConfigTextControllerManager manager}) {
+    TextEditingController minHeightController = manager.minHeightController;
+    TextEditingController maxHeightController = manager.maxHeightController;
+    TextEditingController configNameController = manager.configNameController;
 
-    InputDecoration minHeightDecoration = InputDecoration(label: Text("Min height"), hintText: "Min");
+    InputDecoration genericHeightDecoration = InputDecoration(
+      errorStyle: TextStyle(fontSize: 0),
+    );
 
-    if (configuration.adjustableHeight) {
+    InputDecoration minHeightDecoration = genericHeightDecoration.copyWith(
+      label: Text("Min height"),
+      hintText: "Min",
+    );
+
+    InputDecoration maxHeightDecoration = genericHeightDecoration.copyWith(
+      label: Text("Max height"),
+      hintText: "Min",
+    );
+
+    manager.adjustable = configuration.adjustableHeight;
+
+    if (manager.adjustable) {
       minHeightDecoration = minHeightDecoration.copyWith(label: Text("Min Height"), hintText:"Min");
     } else {
       minHeightDecoration = minHeightDecoration.copyWith(label: Text("Height"), hintText:"Height");
@@ -177,10 +199,12 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                           Column(
                             children: [
                               Switch( // Static/adjustable switch
-                                value: configuration.adjustableHeight,
+                                value: manager.adjustable,
                                 onChanged: (bool value) {
                                   setState(() {
+                                    manager.adjustable = value;
                                     configuration.adjustableHeight = value;
+                                    manager.maxHeightController.text = manager.minHeightController.text;
                                   });
                                 },
                               ),
@@ -191,9 +215,28 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                           SizedBox( // Min height
                             width: 75,
                             height: 48,
-                            child: TextField(
+                            child: TextFormField(
                               controller: minHeightController,
                               decoration: minHeightDecoration,
+                              keyboardType: TextInputType.number,
+                              autovalidateMode: AutovalidateMode.always,
+                              validator: (String? text) {
+                                int newMin = 0;
+                                if (text != null) {
+                                  try {
+                                    newMin = int.parse(text);
+                                  } catch (_) {
+                                    return 'Invalid input';
+                                  }
+                                  
+                                  if (newMin > int.parse(manager.maxHeightController.text)) {
+                                    return 'Min must be lower than Max';
+                                  } else {
+                                    return null;
+                                  }
+                                }
+                                return null;
+                              },
                             ),
                           ),
                           if (configuration.adjustableHeight) ...[
@@ -201,9 +244,28 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                             SizedBox( // Max height
                               width: 75,
                               height: 48,
-                              child: TextField(
+                              child: TextFormField(
                                 controller: maxHeightController,
-                                decoration: InputDecoration(label: Text("Max height"), hintText: "Max"),
+                                keyboardType: TextInputType.number,
+                                decoration: maxHeightDecoration,
+                                autovalidateMode: AutovalidateMode.always,
+                                validator: (String? text) {
+                                  int newMax = 0;
+                                  if (text != null) {
+                                    try {
+                                      newMax = int.parse(text);
+                                    } catch (_) {
+                                      return 'Invalid input';
+                                    }
+
+                                    if (newMax < int.parse(manager.minHeightController.text)) {
+                                      return 'Max must be lower than min';
+                                    } else {
+                                      return null;
+                                    }
+                                  }
+                                  return null;
+                                }
                               ),
                             ),
                           ],
@@ -249,7 +311,9 @@ class ConfigItemTileState extends State<ConfigItemTile> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IconButton(
-            onPressed: _save,
+            onPressed: () {
+              _save(managers:managers);
+            },
             icon: Icon(Icons.check),
           ),
           if (!_newItem) ...[
@@ -289,8 +353,18 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     }
   }
 
-  void _save() {
-    _provider.updateItem(_item, name: _nameEditingController.text);
+  void _save({required List<ConfigTextControllerManager> managers}) {
+    List<ComplexSupportConfiguration> newConfigs = [];
+    for (var i in managers) {
+      if (!i.adjustable || int.parse(i.maxHeightController.text) <= int.parse(i.minHeightController.text)) {
+        i.adjustable = false;
+        i.maxHeightController.text = i.minHeightController.text;
+      } else {
+        i.adjustable = true;
+      }
+      newConfigs.add(ComplexSupportConfiguration(name: i.configNameController.text, minHeight: int.parse(i.minHeightController.text), maxHeight: int.parse(i.maxHeightController.text)));
+    }
+    _provider.updateItem(_item, name: _nameEditingController.text, configs: newConfigs);
     _toggleEdit();
   }
 
@@ -378,4 +452,19 @@ class ConfigItemTileState extends State<ConfigItemTile> {
       },
     );
   }
+}
+
+class ConfigTextControllerManager {
+  TextEditingController minHeightController = TextEditingController();
+  TextEditingController maxHeightController = TextEditingController();
+  TextEditingController configNameController = TextEditingController();
+  bool adjustable = false;
+
+
+  ConfigTextControllerManager({
+    required this.minHeightController,
+    required this.maxHeightController,
+    required this.configNameController,
+    required this.adjustable,
+    });
 }
