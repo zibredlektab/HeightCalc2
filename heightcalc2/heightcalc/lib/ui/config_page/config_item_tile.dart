@@ -1,6 +1,7 @@
 import 'package:heightcalc/data_types/generic/complex_support.dart';
 import 'package:heightcalc/data_types/generic/complex_support_configuration.dart';
 import 'package:heightcalc/main.dart';
+import 'package:flutter/services.dart';
 
 class ConfigItemTile extends StatefulWidget {
 
@@ -22,6 +23,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   late ComplexSupport _item;
   late HeightCalcAppState _provider = widget.provider;
   List<ConfigTextControllerManager> managers = [];
+  late String errorText;
 
   TextEditingController _nameEditingController = TextEditingController();
 
@@ -30,6 +32,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     super.initState();
     _provider = widget.provider;
     _editing = false;
+    errorText = "";
   }
   
 
@@ -164,6 +167,10 @@ class ConfigItemTileState extends State<ConfigItemTile> {
       minHeightDecoration = minHeightDecoration.copyWith(label: Text("Height"), hintText:"Height");
     }
 
+    if (errorText != "") {
+      print("There are errors");
+    }
+
     if (_editing) {
       minHeightController.text = "${configuration.minHeight}";
       maxHeightController.text = "${configuration.maxHeight}";
@@ -218,6 +225,9 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                             child: TextFormField(
                               controller: minHeightController,
                               decoration: minHeightDecoration,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
                               keyboardType: TextInputType.number,
                               autovalidateMode: AutovalidateMode.always,
                               validator: (String? text) {
@@ -226,15 +236,20 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                                   try {
                                     newMin = int.parse(text);
                                   } catch (_) {
+                                    errorText = "Invalid input";
                                     return 'Invalid input';
                                   }
                                   
                                   if (newMin > int.parse(manager.maxHeightController.text)) {
+                                    errorText = "Max must be higher than min";
                                     return 'Min must be lower than Max';
                                   } else {
+                                    errorText = "";
                                     return null;
                                   }
                                 }
+
+                                errorText = "";
                                 return null;
                               },
                             ),
@@ -248,6 +263,9 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                                 controller: maxHeightController,
                                 keyboardType: TextInputType.number,
                                 decoration: maxHeightDecoration,
+                                inputFormatters: <TextInputFormatter>[
+                                  FilteringTextInputFormatter.digitsOnly
+                                ],
                                 autovalidateMode: AutovalidateMode.always,
                                 validator: (String? text) {
                                   int newMax = 0;
@@ -255,15 +273,20 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                                     try {
                                       newMax = int.parse(text);
                                     } catch (_) {
+                                      errorText = "Invalid number entered";
                                       return 'Invalid input';
                                     }
 
                                     if (newMax < int.parse(manager.minHeightController.text)) {
+                                      errorText = "Max must be higher than min";
                                       return 'Max must be lower than min';
                                     } else {
+                                      errorText = "";
                                       return null;
                                     }
                                   }
+
+                                  errorText = "";
                                   return null;
                                 }
                               ),
@@ -272,6 +295,12 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                           Text(" inches"),
                         ],
                       ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          //Text(errorText, style: TextStyle(color: Colors.red),),
+                        ]
+                      )
                     ],
                   ),
                 ),
@@ -355,6 +384,10 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
   void _save({required List<ConfigTextControllerManager> managers}) {
     List<ComplexSupportConfiguration> newConfigs = [];
+    if (errorText != "") {
+      print("There are errors, not saving");
+      return;
+    }
     for (var i in managers) {
       if (!i.adjustable || int.parse(i.maxHeightController.text) <= int.parse(i.minHeightController.text)) {
         i.adjustable = false;
