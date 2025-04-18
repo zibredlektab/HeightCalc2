@@ -251,7 +251,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                                     return 'Invalid input';
                                   }
                                   
-                                  if (newMin > int.parse(manager.maxHeightController.text)) {
+                                  if (manager.adjustable && newMin > int.parse(manager.maxHeightController.text)) {
                                     errorText = "Max must be higher than min";
                                     return 'Min must be lower than Max';
                                   } else {
@@ -443,7 +443,6 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                 } else {
                   _provider.removeItem(_item);
                 }
-                _toggleEdit();
                 Navigator.of(context).pop();
               },
             ),
