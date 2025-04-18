@@ -295,12 +295,6 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                           Text(" inches"),
                         ],
                       ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          //Text(errorText, style: TextStyle(color: Colors.red),),
-                        ]
-                      )
                     ],
                   ),
                 ),
@@ -385,6 +379,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   void _save({required List<ConfigTextControllerManager> managers}) {
     List<ComplexSupportConfiguration> newConfigs = [];
     if (errorText != "") {
+      _showError(error: errorText);
       print("There are errors, not saving");
       return;
     }
@@ -449,6 +444,37 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     );
   }
 
+
+  Future<void> _showError ({required String error, ComplexSupportConfiguration? config}) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('There is an error in one of your configurations:'),
+                Gap(5),
+                Text(error),
+                Gap(5),
+                Text("Please fix this error before saving."),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Future<void> _warnDefaultConfig(ComplexSupportConfiguration config) async {
     return showDialog<void>(
