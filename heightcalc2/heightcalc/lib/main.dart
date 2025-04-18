@@ -209,6 +209,11 @@ class HeightCalcAppState extends ChangeNotifier {
     update();
   }
 
+  void addConfig({required ComplexSupport item}) {
+    item.configurations.add(ComplexSupportConfiguration(name: "New Config", minHeight: 0, maxHeight: 0));
+    update();
+  }
+
   void removeConfig({
       required ComplexSupport item,
       required ComplexSupportConfiguration config

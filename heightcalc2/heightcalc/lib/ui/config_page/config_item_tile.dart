@@ -77,7 +77,18 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             spacing: 5,
                             children: [
-                              Text("Configurations:", style: TextStyle(fontSize: 12),),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text("Configurations:", style: TextStyle(fontSize: 12),),
+                                  IconButton(
+                                    icon: Icon(Icons.add_circle_outline),
+                                    onPressed: (){
+                                      _addConfig();
+                                    },
+                                  ),
+                                ],
+                              ),
                               for (var j = 0; j < _item.configurations.length; j++) ...[
                                 Container(
                                   padding: EdgeInsets.all(5),
@@ -396,6 +407,10 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     _toggleEdit();
   }
 
+  void _addConfig() {
+    _provider.addConfig(item:_item);
+  }
+
   Future<void> _confirmDeletion({ComplexSupportConfiguration? config}) async {
     String toDelete = "";
     
@@ -445,7 +460,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   }
 
 
-  Future<void> _showError ({required String error, ComplexSupportConfiguration? config}) async {
+  Future<void> _showError ({required String error}) async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
