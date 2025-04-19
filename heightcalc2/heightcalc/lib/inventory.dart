@@ -1,4 +1,5 @@
 import 'package:heightcalc/data_types/data_types.dart';
+import 'package:heightcalc/data_types/generic/complex_support_configuration.dart';
 
 class Inventory {
   // UserItems is used to keep track of all items that the user has added to the app, and access/modify those lists
@@ -11,6 +12,7 @@ class Inventory {
 
   int baseHeight = 0; // height from camera base to mid-lens
   ComplexSupport? currentHead; // only one tripod head can be in use, and is typically selected creatively before the shot is set up
+  ComplexSupportConfiguration? currentHeadConfig;
   List<ComplexSupport> requiredAKS = []; // AKS the user has selected creatively
 
   Inventory();

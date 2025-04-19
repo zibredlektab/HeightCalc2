@@ -26,7 +26,8 @@ class Calculator {
 
     shotHeight = height;
     mountHeight = shotHeight - baseHeight; // camera height
-    mountHeight -= inventory.currentHead!.configurations.first.minHeight; // head height
+    mountHeight -= inventory.currentHeadConfig!.minHeight; // head height
+    // TODO currently not supporting variable-height heads
    // print ("subtracted baseheight of $baseHeight and head height of ${inventory.currentHead!.configurations.first.minHeight}");
     for (var i in inventory.requiredAKS) { // required AKS heights
       mountHeight -= i.configurations.first.minHeight;

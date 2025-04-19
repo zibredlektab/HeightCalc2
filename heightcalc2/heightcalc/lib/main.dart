@@ -43,15 +43,15 @@ class HeightCalcAppState extends ChangeNotifier {
 
     inventory.tripodHeads = [
       ComplexSupport(type: SupportType.tripodHead, name: "2575", configurations: [
-        ComplexSupportConfiguration(minHeight: 16, maxHeight: 16),
+        ComplexSupportConfiguration(minHeight: 10, maxHeight: 10),
       ]),
       ComplexSupport(type: SupportType.tripodHead, name: "ArriHead", configurations: [
         ComplexSupportConfiguration(minHeight: 22, maxHeight: 22),
         ComplexSupportConfiguration(name: "with tilt plate", minHeight: 24, maxHeight: 24),
-        
       ]),
     ];
-    inventory.currentHead = inventory.tripodHeads.first;
+
+    setHead(inventory.tripodHeads.first);
 
     inventory.coreSupports = [
       ComplexSupport(
@@ -125,7 +125,13 @@ class HeightCalcAppState extends ChangeNotifier {
 
   void setHead(ComplexSupport newHead) {
     inventory.currentHead = newHead;
-    notifyListeners();
+    inventory.currentHeadConfig = newHead.configurations.first;
+    update();
+  }
+
+  void setHeadConfig(ComplexSupportConfiguration newConfig) {
+    inventory.currentHeadConfig = newConfig;
+    update();
   }
 
   void newHeight(int height) {
@@ -210,7 +216,13 @@ class HeightCalcAppState extends ChangeNotifier {
   }
 
   void addConfig({required ComplexSupport item}) {
-    item.configurations.add(ComplexSupportConfiguration(name: "New Config", minHeight: 0, maxHeight: 0));
+    String newName = "New Config";
+    var index = 0;
+    while (!isConfigNameUnique(item: item, name: newName, newItem: true)) {
+      newName = "New Config ${++index}";
+    }
+    item.configurations.add(ComplexSupportConfiguration(name: newName, minHeight: 0, maxHeight: 0, newConfig: true));
+
     update();
   }
 
@@ -246,6 +258,30 @@ class HeightCalcAppState extends ChangeNotifier {
         return inventory.coreSupports;
 
     }
+  }
+
+  void changeConfigName({
+    required ComplexSupportConfiguration config,
+    required String newName}) {
+      config.name = newName;
+  }
+
+  bool isConfigNameUnique({
+    // TODO this is not robust...
+    required ComplexSupport item,
+    required String name,
+    required bool newItem}) {
+
+      print("Checking if name $name is unique for item ${item.name}");
+      Iterable<ComplexSupportConfiguration> configsWithName = item.configurations.where((config) => config.name == name);
+      print("Found ${configsWithName.length} configurations with name $name");
+
+      if (newItem) {
+        return configsWithName.isEmpty;
+      } else {
+        return configsWithName.length <= 1;
+      }
+
   }
 
 

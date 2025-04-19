@@ -46,7 +46,18 @@ class _ConfigPageState extends State<ConfigPage> {
                   }).toList()
               ),
               Gap(15),
-              Center(child: Text("Head Accessories")),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Head Accessories"),
+                  IconButton(
+                      icon: Icon(Icons.add_circle),
+                      onPressed: () {
+                        _addItem(SupportType.headAKS, provider);
+                      },
+                    ),
+                  ],
+              ),
               Gap(5),
               Column(
                 spacing: 5,
@@ -56,7 +67,18 @@ class _ConfigPageState extends State<ConfigPage> {
                 }).toList()
               ),
               Gap(15),
-              Center(child: Text("Core Supports")),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children:[
+                  Text("Core Supports"),
+                  IconButton(
+                      icon: Icon(Icons.add_circle),
+                      onPressed: () {
+                        _addItem(SupportType.coreSupport, provider);
+                      },
+                    ),
+                ],
+              ),
               Gap(5),
               Column(
                 spacing: 5,
@@ -66,7 +88,18 @@ class _ConfigPageState extends State<ConfigPage> {
                   }).toList()
               ),
               Gap(15),
-              Center(child: Text("Ground Accessories")),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Ground Accessories"),
+                  IconButton(
+                      icon: Icon(Icons.add_circle),
+                      onPressed: () {
+                        _addItem(SupportType.groundAKS, provider);
+                      },
+                    ),
+                  ],
+              ),
               Gap(5),
               Column(
                 spacing: 5,

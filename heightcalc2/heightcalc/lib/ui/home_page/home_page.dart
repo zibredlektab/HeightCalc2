@@ -59,29 +59,19 @@ class _HomePageState extends State<HomePage> {
                       if (appState.inventory.tripodHeads.isEmpty) ...[
                         Text("No heads defined!")
                       ] else ...[
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.blueGrey),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: DropdownButton<ComplexSupport>(
-                            value: provider.inventory.currentHead,
-                            underline: Container(), // get rid of that underline
-                            hint: Text('Select a head'),
-                            onChanged: (ComplexSupport? newHead) {
-                              newHead ??= provider.inventory.tripodHeads.first;
-                              appState.setHead(newHead);
-                            },
-                            borderRadius: BorderRadius.circular(5),
-                            isDense: false,
-                            items: provider.inventory.tripodHeads.map<DropdownMenuItem<ComplexSupport>>((ComplexSupport head) {
-                              return DropdownMenuItem<ComplexSupport>(
-                                value: head,
-                                child: Text(head.name),
-                              );
-                            }).toList(),
-                          ),
+                        DropdownMenu<ComplexSupport>(
+                          initialSelection: provider.inventory.currentHead,
+                          hintText: 'Select a head',
+                          onSelected: (ComplexSupport? newHead) {
+                            newHead ??= provider.inventory.tripodHeads.first;
+                            appState.setHead(newHead);
+                          },
+                          dropdownMenuEntries: provider.inventory.tripodHeads.map<DropdownMenuEntry<ComplexSupport>>((ComplexSupport head) {
+                            return DropdownMenuEntry<ComplexSupport>(
+                              value: head,
+                              label: head.name,
+                            );
+                          }).toList(),
                         ),
                       ]
                     ]

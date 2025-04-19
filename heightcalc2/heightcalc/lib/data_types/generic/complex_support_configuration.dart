@@ -1,9 +1,10 @@
 class ComplexSupportConfiguration {
   ComplexSupportConfiguration({
-    this.name = "",
+    this.name = "Default",
     required this.minHeight,
     required this.maxHeight,
     this.canStack = true,
+    this.newConfig = false
   }) {
     checkAdjustable();
   }
@@ -13,6 +14,7 @@ class ComplexSupportConfiguration {
   int maxHeight;
   bool canStack = true;
   bool adjustableHeight = false;
+  bool newConfig = false;
 
   void checkAdjustable() {
     if (minHeight == maxHeight) {

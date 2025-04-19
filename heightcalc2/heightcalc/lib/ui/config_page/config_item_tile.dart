@@ -47,7 +47,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
     managers = [];
     for (var i in _item.configurations) {
-      managers.add(ConfigTextControllerManager(minHeightController: TextEditingController(), maxHeightController: TextEditingController(), configNameController: TextEditingController(), adjustable: i.adjustableHeight));
+      managers.add(ConfigTextControllerManager(minHeightController: TextEditingController(), maxHeightController: TextEditingController(), configNameController: TextEditingController(), adjustable: i.adjustableHeight, newConfig: i.newConfig));
     }
 
     return Consumer<HeightCalcAppState>(
@@ -81,12 +81,13 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Configurations:", style: TextStyle(fontSize: 12),),
-                                  IconButton(
-                                    icon: Icon(Icons.add_circle_outline),
-                                    onPressed: (){
-                                      _addConfig();
-                                    },
-                                  ),
+                                  if (_editing)
+                                    IconButton(
+                                      icon: Icon(Icons.add_circle_outline),
+                                      onPressed: (){
+                                        _addConfig();
+                                      },
+                                    ),
                                 ],
                               ),
                               for (var j = 0; j < _item.configurations.length; j++) ...[
@@ -206,9 +207,19 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                       SizedBox(
                         width: double.infinity,
                         height: 48,
-                        child: TextField(
+                        child: TextFormField(
                           controller: configNameController,
                           decoration: InputDecoration(label: Text("Configuration Name"), hintText: "Name"),
+                          validator: (String? text){
+                            if (text != null && _provider.isConfigNameUnique(item: _item, name: text, newItem: manager.newConfig)) {
+                              errorText = "";
+                              return null;
+                            } else {
+                              errorText = "Config name \"$text\" is not unique.";
+                              return "Config name \"$text\" is not unique.";
+                            }
+                          },
+                          autovalidateMode: AutovalidateMode.onUnfocus,
                         ),
                       ),
                       Row(
@@ -401,7 +412,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
       } else {
         i.adjustable = true;
       }
-      newConfigs.add(ComplexSupportConfiguration(name: i.configNameController.text, minHeight: int.parse(i.minHeightController.text), maxHeight: int.parse(i.maxHeightController.text)));
+      newConfigs.add(ComplexSupportConfiguration(name: i.configNameController.text, minHeight: int.parse(i.minHeightController.text), maxHeight: int.parse(i.maxHeightController.text), newConfig: false));
     }
     _provider.updateItem(_item, name: _nameEditingController.text, configs: newConfigs);
     _toggleEdit();
@@ -532,6 +543,7 @@ class ConfigTextControllerManager {
   TextEditingController maxHeightController = TextEditingController();
   TextEditingController configNameController = TextEditingController();
   bool adjustable = false;
+  bool newConfig = false;
 
 
   ConfigTextControllerManager({
@@ -539,5 +551,6 @@ class ConfigTextControllerManager {
     required this.maxHeightController,
     required this.configNameController,
     required this.adjustable,
+    required this.newConfig
     });
 }
