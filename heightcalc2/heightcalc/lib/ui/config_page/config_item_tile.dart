@@ -33,6 +33,9 @@ class ConfigItemTileState extends State<ConfigItemTile> {
     _provider = widget.provider;
     _item = ComplexSupport(type: widget.item.type, name: widget.item.name, configurations: List.empty());
     _item.configurations = List.from(widget.item.configurations); // make a local duplicate of the item in question
+    for (var i = 0; i < _item.configurations.length; i++) {
+      _item.configurations[i].id = widget.item.configurations[i].id; // gotta be sure
+    }
     _editing = false;
     errorText = "";
   }
@@ -483,7 +486,9 @@ class ConfigItemTileState extends State<ConfigItemTile> {
               child: const Text('OK'),
               onPressed: () {
                 if (config != null) {
-                  _provider.removeConfig(item: _item, config: config); // TODO move this to item instead
+                  setState(() {
+                    _item.removeConfig(config);
+                  });
                 } else {
                   _provider.removeItem(_item);
                 }

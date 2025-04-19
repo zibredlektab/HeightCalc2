@@ -220,27 +220,6 @@ class HeightCalcAppState extends ChangeNotifier {
     update();
   }
 
-  void addConfig({required ComplexSupport item}) {
-    String newName = "New Config";
-    var index = 0;
-    while (!isConfigNameUnique(item: item, name: newName, newItem: true)) {
-      newName = "New Config ${++index}";
-    }
-    item.configurations.add(ComplexSupportConfiguration(name: newName, minHeight: 0, maxHeight: 0, newConfig: true));
-
-    update();
-  }
-
-  void removeConfig({
-      required ComplexSupport item,
-      required ComplexSupportConfiguration config
-    }) {
-    if (item.configurations.contains(config)) {
-      item.configurations.remove(config);
-    }
-    update();
-  }
-
   List<ComplexSupport> getListForItem(ComplexSupport item) {
     return getListForType(item.type);
   }
@@ -269,24 +248,6 @@ class HeightCalcAppState extends ChangeNotifier {
     required ComplexSupportConfiguration config,
     required String newName}) {
       config.name = newName;
-  }
-
-  bool isConfigNameUnique({
-    // TODO this is not robust...
-    required ComplexSupport item,
-    required String name,
-    required bool newItem}) {
-
-      //print("Checking if name $name is unique for item ${item.name}");
-      Iterable<ComplexSupportConfiguration> configsWithName = item.configurations.where((config) => config.name == name);
-      //print("Found ${configsWithName.length} configurations with name $name");
-
-      if (newItem) {
-        return configsWithName.isEmpty;
-      } else {
-        return configsWithName.length <= 1;
-      }
-
   }
 
 

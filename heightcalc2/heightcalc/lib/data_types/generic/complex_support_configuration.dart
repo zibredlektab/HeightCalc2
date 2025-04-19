@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class ComplexSupportConfiguration {
   ComplexSupportConfiguration({
     this.name = "Default",
@@ -16,6 +18,7 @@ class ComplexSupportConfiguration {
     }
   }
 
+  int id = Random().nextInt(0xFFFFFFFF); // some big number, probably big enough?
   String name;
   int minHeight;
   int maxHeight;

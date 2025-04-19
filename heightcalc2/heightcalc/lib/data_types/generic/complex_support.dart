@@ -44,6 +44,16 @@ class ComplexSupport {
     }
   }
 
+  void removeConfig(ComplexSupportConfiguration config) {
+    ComplexSupportConfiguration toRemove = configurations.firstWhere((e) => e.id == config.id, orElse: () => ComplexSupportConfiguration(minHeight: -1, maxHeight: -1));
+    if (toRemove.minHeight != -1) {
+      print("removing config ${config.name} from item $name");
+      configurations.remove(toRemove);
+    } else {
+      print("config ${config.name} does not exist...? Cannot be removed.");
+    }
+  }
+
   bool isConfigNameUnique({required String name, bool newConfig = false}) {
     bool foundMyself = false;
     for (var i in configurations) {
