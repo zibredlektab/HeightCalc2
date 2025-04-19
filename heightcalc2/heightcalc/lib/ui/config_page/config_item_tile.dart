@@ -31,6 +31,8 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   void initState() {
     super.initState();
     _provider = widget.provider;
+    _item = ComplexSupport(type: widget.item.type, name: widget.item.name, configurations: List.empty());
+    _item.configurations = List.from(widget.item.configurations); // make a local duplicate of the item in question
     _editing = false;
     errorText = "";
   }
@@ -38,8 +40,8 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
   @override
   Widget build(BuildContext context) {
-    _item = widget.item;
-    _newItem = _item.newItem;
+    _item.name = widget.item.name;
+    _newItem = widget.item.newItem;
 
     if (_newItem) {
       _editing = true;
@@ -47,7 +49,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
     managers = [];
     for (var i in _item.configurations) {
-      managers.add(ConfigTextControllerManager(minHeightController: TextEditingController(), maxHeightController: TextEditingController(), configNameController: TextEditingController(), adjustable: i.adjustableHeight, newConfig: i.newConfig));
+      managers.add(ConfigTextControllerManager(minHeightController: TextEditingController(), maxHeightController: TextEditingController(), configNameController: TextEditingController(), newConfig: i.newConfig));
     }
 
     return Consumer<HeightCalcAppState>(
@@ -129,9 +131,21 @@ class ConfigItemTileState extends State<ConfigItemTile> {
           SizedBox(
             width: 200,
             height: 40,
-            child: TextField(
+            child: TextFormField(
               controller: _nameEditingController,
               decoration: InputDecoration(hintText: "Name"),
+              autovalidateMode: AutovalidateMode.always,
+              validator: (String? newName) {
+                // TODO check if name is valid (unique)
+                return null;
+              },
+              onChanged: (String? newName) {
+                if (newName != null) {
+                  _item.name = newName;
+                } else {
+                  _item.name = "";
+                }
+              },
             ),
           ),
           Gap(10),
@@ -171,9 +185,8 @@ class ConfigItemTileState extends State<ConfigItemTile> {
       hintText: "Min",
     );
 
-    manager.adjustable = configuration.adjustableHeight;
 
-    if (manager.adjustable) {
+    if (configuration.adjustableHeight) {
       minHeightDecoration = minHeightDecoration.copyWith(label: Text("Min Height"), hintText:"Min");
     } else {
       minHeightDecoration = minHeightDecoration.copyWith(label: Text("Height"), hintText:"Height");
@@ -211,7 +224,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                           controller: configNameController,
                           decoration: InputDecoration(label: Text("Configuration Name"), hintText: "Name"),
                           validator: (String? text){
-                            if (text != null && _provider.isConfigNameUnique(item: _item, name: text, newItem: manager.newConfig)) {
+                            if (text != null && _item.isConfigNameUnique(name: text)) {
                               errorText = "";
                               return null;
                             } else {
@@ -219,7 +232,12 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                               return "Config name \"$text\" is not unique.";
                             }
                           },
-                          autovalidateMode: AutovalidateMode.onUnfocus,
+                          autovalidateMode: AutovalidateMode.always,
+                          onChanged: (String? newName) {
+                            if (newName != null) {
+                              configuration.name = newName;
+                            }
+                          },
                         ),
                       ),
                       Row(
@@ -228,10 +246,14 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                           Column(
                             children: [
                               Switch( // Static/adjustable switch
-                                value: manager.adjustable,
+                                value: configuration.adjustableHeight,
                                 onChanged: (bool value) {
                                   setState(() {
-                                    manager.adjustable = value;
+                                    if (value) {
+                                      print("Configuration ${configuration.name} is now adjustable");
+                                    } else {
+                                      print("Configuration ${configuration.name} is no longer adjustable");
+                                    }
                                     configuration.adjustableHeight = value;
                                     manager.maxHeightController.text = manager.minHeightController.text;
                                   });
@@ -262,7 +284,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
                                     return 'Invalid input';
                                   }
                                   
-                                  if (manager.adjustable && newMin > int.parse(manager.maxHeightController.text)) {
+                                  if (configuration.adjustableHeight && newMin > int.parse(manager.maxHeightController.text)) {
                                     errorText = "Max must be higher than min";
                                     return 'Min must be lower than Max';
                                   } else {
@@ -273,6 +295,11 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
                                 errorText = "";
                                 return null;
+                              },
+                              onChanged: (String? newHeight) {
+                                if (newHeight != null) {
+                                  configuration.minHeight = int.parse(newHeight);
+                                }
                               },
                             ),
                           ),
@@ -310,7 +337,12 @@ class ConfigItemTileState extends State<ConfigItemTile> {
 
                                   errorText = "";
                                   return null;
-                                }
+                                },
+                                onChanged: (String? newHeight) {
+                                  if (newHeight != null) {
+                                    configuration.maxHeight = int.parse(newHeight);
+                                  }
+                                },
                               ),
                             ),
                           ],
@@ -339,7 +371,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
         heightLabel = configuration.name;
       }
       heightLabel += ": ${configuration.minHeight}";
-      if (configuration.minHeight != configuration.maxHeight) {
+      if (configuration.adjustableHeight) {
         heightLabel += " - ${configuration.maxHeight}";
       }
       heightLabel += " inches";
@@ -399,27 +431,28 @@ class ConfigItemTileState extends State<ConfigItemTile> {
   }
 
   void _save({required List<ConfigTextControllerManager> managers}) {
-    List<ComplexSupportConfiguration> newConfigs = [];
     if (errorText != "") {
       _showError(error: errorText);
       print("There are errors, not saving");
       return;
     }
-    for (var i in managers) {
-      if (!i.adjustable || int.parse(i.maxHeightController.text) <= int.parse(i.minHeightController.text)) {
-        i.adjustable = false;
-        i.maxHeightController.text = i.minHeightController.text;
-      } else {
-        i.adjustable = true;
+    
+    for (var i in _item.configurations) {
+      if (!i.adjustableHeight) {
+        i.maxHeight = i.minHeight;
+      } else if (i.minHeight == i.maxHeight) {
+        i.adjustableHeight = true;
       }
-      newConfigs.add(ComplexSupportConfiguration(name: i.configNameController.text, minHeight: int.parse(i.minHeightController.text), maxHeight: int.parse(i.maxHeightController.text), newConfig: false));
     }
-    _provider.updateItem(_item, name: _nameEditingController.text, configs: newConfigs);
+
+    _provider.updateItem(widget.item, name: _item.name, configs: _item.configurations);
     _toggleEdit();
   }
 
   void _addConfig() {
-    _provider.addConfig(item:_item);
+    setState(() {
+      _item.addConfig();
+    });
   }
 
   Future<void> _confirmDeletion({ComplexSupportConfiguration? config}) async {
@@ -450,7 +483,7 @@ class ConfigItemTileState extends State<ConfigItemTile> {
               child: const Text('OK'),
               onPressed: () {
                 if (config != null) {
-                  _provider.removeConfig(item: _item, config: config);
+                  _provider.removeConfig(item: _item, config: config); // TODO move this to item instead
                 } else {
                   _provider.removeItem(_item);
                 }
@@ -542,7 +575,6 @@ class ConfigTextControllerManager {
   TextEditingController minHeightController = TextEditingController();
   TextEditingController maxHeightController = TextEditingController();
   TextEditingController configNameController = TextEditingController();
-  bool adjustable = false;
   bool newConfig = false;
 
 
@@ -550,7 +582,6 @@ class ConfigTextControllerManager {
     required this.minHeightController,
     required this.maxHeightController,
     required this.configNameController,
-    required this.adjustable,
     required this.newConfig
     });
 }

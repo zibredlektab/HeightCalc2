@@ -170,12 +170,17 @@ class HeightCalcAppState extends ChangeNotifier {
 
   void updateItem(ComplexSupport item, {String name = "", List<ComplexSupportConfiguration> configs = const []}) {
     // Update the specified item with the specified parameters
+    print ("Updating item ${item.name}");
     if (name != "") {
       item.name = name;
+      print("New name is $name");
     }
 
     if (configs.isNotEmpty) {
       item.configurations = configs;
+      for (var i in configs) {
+        print("New configuration: ${i.name}, ${i.minHeight} - ${i.maxHeight}, adjustable: ${i.adjustableHeight}");
+      }
     }
 
     item.newItem = false;
@@ -272,9 +277,9 @@ class HeightCalcAppState extends ChangeNotifier {
     required String name,
     required bool newItem}) {
 
-      print("Checking if name $name is unique for item ${item.name}");
+      //print("Checking if name $name is unique for item ${item.name}");
       Iterable<ComplexSupportConfiguration> configsWithName = item.configurations.where((config) => config.name == name);
-      print("Found ${configsWithName.length} configurations with name $name");
+      //print("Found ${configsWithName.length} configurations with name $name");
 
       if (newItem) {
         return configsWithName.isEmpty;

@@ -4,9 +4,16 @@ class ComplexSupportConfiguration {
     required this.minHeight,
     required this.maxHeight,
     this.canStack = true,
-    this.newConfig = false
+    this.newConfig = false,
+    this.adjustableHeight = true,
   }) {
-    checkAdjustable();
+    if (adjustableHeight = true) {
+      // if the configuration supposedly has an adjustable height, double check that the heights are different 
+      checkAdjustable();
+      if (!adjustableHeight) {
+        maxHeight = minHeight;
+      }
+    }
   }
 
   String name;
@@ -25,12 +32,17 @@ class ComplexSupportConfiguration {
   }
 
   void updateHeight({
-    required minHeightNew,
-    required maxHeightNew
+    required int minHeightNew,
+    int maxHeightNew = 0,
   }) {
     minHeight = minHeightNew;
-    maxHeight = maxHeightNew;
-    checkAdjustable();
+    if (maxHeightNew == 0) {
+      maxHeight = minHeightNew;
+      adjustableHeight = false;
+    } else {
+      maxHeight = maxHeightNew;
+      checkAdjustable();
+    }
   }
 
   bool canReachHeight(int testHeight) {
