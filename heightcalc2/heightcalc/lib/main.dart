@@ -195,7 +195,13 @@ class HeightCalcAppState extends ChangeNotifier {
     }
 
     List<ComplexSupport> list = getListForItem(item);
-    list.remove(item);
+    ComplexSupport toRemove = list.firstWhere((e) => e.id == item.id, orElse: () => ComplexSupport(type: SupportType.none, name: "", configurations: []));
+
+    if (toRemove.type == SupportType.none) {
+      print ("Could not find item ${item.name} to remove...?");
+    } else {
+      list.remove(toRemove);
+    }
 
     print("Removed item ${item.name} from list $list");
     

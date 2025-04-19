@@ -1,8 +1,10 @@
 import 'package:heightcalc/data_types/generic/complex_support_configuration.dart';
+import 'dart:math';
 
 class ComplexSupport {
   // Complex Supports have a list of configuration states (at least one), specifying min and max heights in each state
   
+  int id = Random().nextInt(0xFFFFFFFF); // some big number, probably big enough?
   SupportType type;
   String name;
   List<ComplexSupportConfiguration> configurations;
@@ -73,6 +75,7 @@ class ComplexSupport {
 }
 
 enum SupportType {
+  none,
   tripodHead,
   headAKS,
   coreSupport,
